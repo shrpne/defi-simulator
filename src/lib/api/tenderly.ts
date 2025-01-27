@@ -1,29 +1,8 @@
 import axios from 'axios';
 import type {Hex, Address} from "viem";
-import { Tenderly, Network } from '@tenderly/sdk';
 import { TENDERLY_ACCOUNT_SLUG, TENDERLY_PROJECT_SLUG, TENDERLY_ACCESS_KEY, TENDERLY_RPC_ACCESS_KEY } from '@/config.ts';
 
-export const tenderly = new Tenderly({
-    accountName: TENDERLY_ACCOUNT_SLUG,
-    projectName: TENDERLY_PROJECT_SLUG,
-    accessKey: TENDERLY_ACCESS_KEY,
-    network: Network.MAINNET,
-});
 
-
-// export function simulate() {
-//     const transaction = await tenderly.simulator.simulateTransaction({
-//         transaction: {
-//             from: callerAddress,
-//             to: counterContract,
-//             gas: 20000000,
-//             gas_price: '19419609232',
-//             value: 0,
-//             input: counterContractAbiInterface.encodeFunctionData('inc', []),
-//         },
-//         blockNumber: 3237677,
-//     });
-// }
 
 type SimulateTxParams = {
     from: Address;

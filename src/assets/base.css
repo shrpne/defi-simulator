@@ -1,8 +1,14 @@
 :root {
   --color-text: #111;
   --color-border: var(--color-stone-300);
+  --color-background: #ffffff;
 }
 
+:root.dark {
+  --color-text: #ffffff;
+  --color-border: #374151;
+  --color-background: #111827;
+}
 
 /*
 @media (prefers-color-scheme: dark) {
@@ -19,17 +25,15 @@
   }
 }*/
 
-
 body {
   min-height: 100vh;
   color: var(--color-text);
   line-height: 1.5;
-  /*
   background: var(--color-background);
   transition:
     color 0.5s,
     background-color 0.5s;
-
+  /*
   font-family:
     Inter,
     -apple-system,

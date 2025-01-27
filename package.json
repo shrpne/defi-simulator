@@ -13,7 +13,6 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@tenderly/sdk": "^0.3.0",
     "@web3-onboard/injected-wallets": "^2.11.3",
     "@web3-onboard/vue": "^2.10.0",
     "axios": "^1.7.9",
