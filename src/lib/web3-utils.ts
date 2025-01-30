@@ -1,5 +1,5 @@
 import { encodeFunctionData, erc20Abi, parseUnits } from 'viem';
-import type { TransactionRequestBase } from 'viem';
+import type { TransactionRequestBase, Hex } from 'viem';
 
 type RequiredNotNull<T> = {
     [P in keyof T]: NonNullable<T[P]>
@@ -22,6 +22,17 @@ export function buildApproveTx(
         data,
         // value: 0n,
     };
+}
+
+export function encodeApproveData(
+    spender: `0x${string}`,
+    amount: number | string | bigint // in wei
+) {
+    return encodeFunctionData({
+        abi: erc20Abi,
+        functionName: 'approve',
+        args: [spender, BigInt(amount)],
+    })
 }
 
 

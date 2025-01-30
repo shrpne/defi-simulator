@@ -1,6 +1,8 @@
 import axios from 'axios';
 import type {Hex, Address} from "viem";
 import { TENDERLY_ACCOUNT_SLUG, TENDERLY_PROJECT_SLUG, TENDERLY_ACCESS_KEY, TENDERLY_RPC_ACCESS_KEY } from '@/config.ts';
+import type { SimulateBundleResponse } from './tenderly-simlate-bundle-models.ts';
+export type { SimulateBundleResult, SimulateTransactionResult, AssetChange } from './tenderly-simlate-bundle-models.ts';
 
 
 
@@ -95,7 +97,7 @@ type SimulateRpcTxParams = {
 }
 
 export function simulateBundleRpc(txList: Array<SimulateRpcTxParams>) {
-    return axios.post(`https://mainnet.gateway.tenderly.co/${TENDERLY_RPC_ACCESS_KEY}`, {
+    return axios.post<SimulateBundleResponse>(`https://mainnet.gateway.tenderly.co/${TENDERLY_RPC_ACCESS_KEY}`, {
         "id": 0,
         "jsonrpc": "2.0",
         "method": "tenderly_simulateBundle",
@@ -128,7 +130,8 @@ export function simulateBundleRpc(txList: Array<SimulateRpcTxParams>) {
                     }
                 }
             }*/
-        ]
+        ],
     })
+        .then((response) => response.data.result);
 }
 

@@ -2,6 +2,19 @@ import './assets/main.css';
 
 import { createApp } from 'vue';
 import App from './App.vue';
-import web3Onboard from './lib/web3-onboard';
+// init web3Onboard
+import './lib/web3-onboard.ts';
+import PrimeVue from 'primevue/config';
+import CustomAuraTheme from '@/lib/primevue-theme.ts';
+// import Aura from '@primevue/themes/aura';
 
-createApp(App).mount('#app');
+const app = createApp(App);
+app.use(PrimeVue, {
+    theme: {
+        preset: CustomAuraTheme,
+        options: {
+            darkModeSelector: '.dark',
+        },
+    },
+});
+app.mount('#app');

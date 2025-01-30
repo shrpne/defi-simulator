@@ -2,6 +2,7 @@
 
 @theme {
     --color-muted: var(--color-stone-600);
+    --shadow-md: 0 3px 6px -1px rgb(0 0 0 / 0.1), 0 1px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 @utility container-xs {
