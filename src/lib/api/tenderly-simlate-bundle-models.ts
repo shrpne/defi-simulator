@@ -63,9 +63,9 @@ type DecodedOutput = {
 export type AssetChange = {
     assetInfo: AssetInfo;
     type: string;
-    to: string;
-    from?: string;
-    rawAmount: string;
+    to: `0x${string}`;
+    from?: `0x${string}`;
+    rawAmount: `0x${string}`;
     amount?: string;
     dollarValue?: string;
 };
@@ -73,7 +73,7 @@ export type AssetChange = {
 type AssetInfo = {
     standard: string;
     type?: string;
-    contractAddress: string;
+    contractAddress: `0x${string}`;
     symbol?: string;
     name?: string;
     logo?: string;
@@ -82,7 +82,7 @@ type AssetInfo = {
 };
 
 type BalanceChange = {
-    address: string;
+    address: `0x${string}`;
     dollarValue: string;
     transfers: number[];
 };

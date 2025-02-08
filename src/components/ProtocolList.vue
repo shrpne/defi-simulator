@@ -2,13 +2,10 @@
 import { ref, computed, watch } from 'vue';
 import {PROTOCOL_LIST} from '@/lib/protocols.ts';
 import { simulateTransaction, simulateBundle, simulateBundleRpc } from '@/lib/api/tenderly.ts';
-import { buildApproveTx } from '@/lib/web3-utils.ts';
-import {extractAssetChanges} from '@/lib/utils/simulation-asset-change.ts'
-import type {AssetChange} from '@/lib/utils/simulation-asset-change.ts';
 import ProtocolPendle from '@/components/ProtocolPendle.vue';
 
-const totalGasUsed = ref<number>();
-const assetChanges = ref<Array<AssetChange>>([]);
+// const totalGasUsed = ref<number>();
+// const assetChanges = ref<Array<AssetChange>>([]);
 
 async function simulate() {
     /*const action = PROTOCOL_LIST[1].actions[0].txs[1]
