@@ -36,3 +36,6 @@
 .button--medium {
     padding: 7px 13px;
 }
+.button--small {
+    padding: 5px 9px;
+}

@@ -1,21 +1,24 @@
 import { ref, shallowReactive, computed } from 'vue';
-import {type Address } from 'viem';
+import {type Address, formatUnits } from 'viem';
 import { getTokenInfo } from '@/lib/api/web3.ts';
 
 export type TokenInfo = {
-    contractAddress: string;
+    contractAddress: Address;
     symbol?: string;
     name?: string;
     logo?: string;
     decimals?: number;
 
-    // value?: bigint; // in wei
-    // amount?: string;
-    // dollarValue?: string;
     price?: number;
 };
 
-const tokens = shallowReactive<Record<string, TokenInfo>>({});
+export type TokenValue = TokenInfo & {
+    value: bigint;
+    amount: string;
+    usdValue?: string;
+}
+
+const tokens = shallowReactive<Record<Address, TokenInfo>>({});
 
 function updateTokens(list: Array<TokenInfo>) {
     list.forEach((token) => {
@@ -42,6 +45,21 @@ function fetchTokenInfo(tokenAddress: Address) {
         });
 }
 
+function prepareToken(tokenAddress: Address, value: bigint | string | number): TokenValue {
+    const tokenInfo = tokens[tokenAddress];
+    if (!tokenInfo || tokenInfo.decimals === undefined || tokenInfo.decimals === null) {
+        throw new Error(`Token info not found for address: ${tokenAddress}`);
+    }
+    return {
+        ...tokenInfo,
+        value: BigInt(value),
+        amount: formatUnits(BigInt(value), tokenInfo.decimals),
+        usdValue: typeof tokenInfo.price !== 'undefined' ? (Number(value) * tokenInfo.price).toString() : undefined,
+    };
+}
+
+export type PrepareToken = typeof prepareToken;
+
 // function getTokenInfo(tokenAddress: string) {
 //     return computed(() => tokenStore.value[tokenAddress] ?? null);
 // }
@@ -54,5 +72,6 @@ export default function useTokens() {
         updateTokens,
         extractTokens,
         fetchTokenInfo,
+        prepareToken,
     };
 }

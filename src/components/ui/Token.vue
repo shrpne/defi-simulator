@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import { pretty, prettyUsd } from '@/utils/pretty-num.ts';
+import { type TokenValue } from '@/composables/use-tokens.ts';
 
 const props = defineProps<{
-    symbol?: string,
-    logo?: string,
-    amount?: string|number,
+    token: Partial<TokenValue>,
     text?: string,
 }>();
 
 const sub = computed(() => {
-    if (typeof props.amount !== 'undefined') {
-        return props.amount;
+    if (typeof props.token.amount !== 'undefined') {
+        return props.token.amount;
     }
     return props.text;
 })
@@ -18,10 +18,14 @@ const sub = computed(() => {
 
 <template>
     <div class="flex items-center">
-        <img :src="logo" class="w-8.5 h-8.5 rounded-full mr-2" alt="">
+        <img :src="props.token.logo" class="w-8.5 h-8.5 rounded-full mr-2" alt="">
         <div>
-            <div class="font-medium leading-5">{{ symbol }}</div>
-            <div class="text-sm text-gray-500 leading-4.5" v-if="sub">{{ sub }}</div>
+            <div class="font-semibold leading-5">{{ props.token.symbol }}</div>
+            <div class="text-sm text-gray-500 leading-4.5" v-if="props.text">{{ props.text }}</div>
+        </div>
+        <div v-if="props.token.amount" class="text-right ml-auto">
+            <div class="font-semibold leading-5">{{ pretty(props.token.amount) }}</div>
+            <div class="text-sm text-gray-500 leading-4.5" v-if="props.token.price">${{ prettyUsd(Number(props.token.amount) * Number(props.token.price)) }}</div>
         </div>
     </div>
 </template>

@@ -2,14 +2,15 @@
 import { ref, computed, watch } from 'vue';
 import { simulateBundleRpc, type SimulateBundleResult } from '@/lib/api/tenderly.ts';
 import { simulationBundleTokensExtractor } from '@/lib/api/tenderly-utils.ts';
-import { getMarkets, prepareMarketSwapTx, type PendleMarketData } from '@/lib/api/pendle.ts';
-import { getWalletTokenBalances, type Erc20Value } from '@/lib/api/moralis.ts';
-import { balanceTokensExtractor } from '@/lib/api/moralis-utils.ts';
+import { getMarkets, getAssetsPrices, getAssetsMetadata, prepareMarketSwapTx, type PendleMarketData } from '@/lib/api/pendle.ts';
+import { pendlePriceExtractor, pendleMetadataExtractor } from '@/lib/api/pendle-utils.ts';
+import { getWalletTokenBalances, type Erc20Value, type EvmErc20TokenBalanceWithPrice } from '@/lib/api/moralis.ts';
+import { balancePriceTokensExtractor, balancePriceTokensPreparator } from '@/lib/api/moralis-utils.ts';
 import { buildApproveTx, encodeApproveData } from '@/lib/web3-utils.ts';
 
 import { useOnboard } from '@web3-onboard/vue';
 import useAsyncAction from '@/composables/use-async-action.ts';
-import useTokens from '@/composables/use-tokens.ts';
+import useTokens, { type TokenValue } from '@/composables/use-tokens.ts';
 
 import Select from 'primevue/select';
 import UiToken from '@/components/ui/Token.vue';
@@ -17,7 +18,10 @@ import ProtocolEstimationResult from '@/components/ProtocolEstimationResult.vue'
 
 
 const { connectedWallet } = useOnboard();
-const { tokens, extractTokens } = useTokens();
+const { tokens, extractTokens, prepareToken } = useTokens();
+
+extractTokens(getAssetsPrices(), pendlePriceExtractor);
+extractTokens(getAssetsMetadata(), pendleMetadataExtractor);
 
 const {
     data: markets,
@@ -31,7 +35,7 @@ const {
 const walletAddress = computed(() => connectedWallet.value?.accounts[0]?.address);
 
 const {
-    data: balance,
+    data: _balance,
     status: balanceStatus,
     error: balanceError,
     execute: fetchBalance,
@@ -39,13 +43,17 @@ const {
     if (!walletAddress.value) {
         return Promise.resolve([]);
     }
-    return extractTokens(getWalletTokenBalances(walletAddress.value), balanceTokensExtractor);
+    return extractTokens(getWalletTokenBalances(walletAddress.value), balancePriceTokensExtractor);
 }, {
     watch: walletAddress,
     immediate: true,
 });
 
-const selectedToken = ref<Erc20Value>();
+const balance = computed(() => {
+    return balancePriceTokensPreparator(_balance.value || [], prepareToken);
+});
+
+const selectedToken = ref<TokenValue>();
 const selectedMarket = ref<PendleMarketData>();
 const simulationResult = ref<SimulateBundleResult>();
 
@@ -55,11 +63,11 @@ const isLoading = computed(() => {
 
 async function handleSubmit() {
     console.log('Swap', selectedToken.value, 'to', selectedMarket.value);
-    if (!selectedToken.value?.token || !selectedMarket.value) {
+    if (!selectedToken.value?.contractAddress || !selectedMarket.value) {
         return;
     }
-    const tokenIn = selectedToken.value.token.contractAddress.lowercase as `0x${string}`;
-    const amountIn = selectedToken.value.amount.toString();
+    const tokenIn = selectedToken.value.contractAddress;
+    const amountIn = selectedToken.value.value.toString();
     const tokenOut = selectedMarket.value.pt.split('-')[1];
 
     const { tx } = await prepareMarketSwapTx({
@@ -139,21 +147,17 @@ const formatExpiry = (expiry: string) => {
                     placeholder="Select a token"
                     class="w-full"
                 >
-                    <template #value="slotProps: { value: Erc20Value, placeholder: string }">
+                    <template #value="slotProps: { value: TokenValue, placeholder: string }">
                         <UiToken
                             v-if="slotProps.value"
-                            :symbol="slotProps.value.token?.symbol"
-                            :logo="slotProps.value.token?.thumbnail || ''"
-                            :amount="slotProps.value.value"
+                            :token="slotProps.value"
                         />
                         <span v-else class="text-gray-500">Select a token</span>
                     </template>
-                    <template #option="slotProps: { option: Erc20Value }">
+                    <template #option="slotProps: { option: TokenValue }">
                         <UiToken
-                            class="p-2"
-                            :symbol="slotProps.option.token?.symbol"
-                            :logo="slotProps.option.token?.thumbnail || ''"
-                            :amount="slotProps.option.value"
+                            class="grow"
+                            :token="slotProps.option"
                         />
                     </template>
                 </Select>
@@ -174,7 +178,7 @@ const formatExpiry = (expiry: string) => {
                     <template #value="slotProps: { value: PendleMarketData, placeholder: string }">
                         <UiToken
                             v-if="slotProps.value"
-                            :symbol="slotProps.value.name"
+                            :token="{symbol: slotProps.value.name}"
                             :text="formatExpiry(slotProps.value.expiry)"
                         />
                         <span v-else class="text-gray-500">Select a market</span>
@@ -182,7 +186,7 @@ const formatExpiry = (expiry: string) => {
                     <template #option="slotProps: { option: PendleMarketData }">
                         <UiToken
                             class="p-2"
-                            :symbol="slotProps.option.name"
+                            :token="{symbol: slotProps.option.name}"
                             :text="formatExpiry(slotProps.option.expiry)"
                         />
                     </template>

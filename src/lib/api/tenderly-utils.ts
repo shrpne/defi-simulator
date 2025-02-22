@@ -1,5 +1,6 @@
 import { simulateBundleRpc,  } from './tenderly.ts';
 import type { TokenInfo } from '@/composables/use-tokens.ts';
+import { omitNullish } from '@/utils/structs.ts';
 
 export function simulationBundleTokensExtractor(
     bundleResult: Awaited<ReturnType<typeof simulateBundleRpc>>,
@@ -8,13 +9,13 @@ export function simulationBundleTokensExtractor(
     for (const simulation of bundleResult) {
         const assets = simulation.assetChanges?.map((item) => item.assetInfo) || [];
         tokens = tokens.concat(assets.map((asset) => {
-            return {
+            return omitNullish({
                 contractAddress: asset.contractAddress,
                 symbol: asset.symbol,
                 name: asset.name,
                 logo: asset.logo,
                 decimals: asset.decimals,
-            }
+            });
         }));
     }
     return tokens;
