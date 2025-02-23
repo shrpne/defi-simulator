@@ -8,6 +8,14 @@ const web3Onboard = init({
         showSidebar: false,
         autoConnectLastWallet: true,
     },
+    // accountCenter: {
+    //     desktop: {
+    //         enabled: false,
+    //     },
+    //     mobile: {
+    //         enabled: false,
+    //     },
+    // },
     wallets: [injected],
     chains: [
         {
