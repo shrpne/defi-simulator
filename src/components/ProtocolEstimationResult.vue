@@ -1,84 +1,96 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { formatUnits, hexToBigInt } from 'viem';
-import { type SimulateBundleResult, type AssetChange } from '@/lib/api/tenderly-simlate-bundle-models.ts';
+import { type Address } from 'viem';
+import { type SimulateBundleResult } from '@/lib/api/tenderly-simlate-bundle-models.ts';
 import { pretty, prettyUsd } from '@/utils/pretty-num.ts';
-import useTokens, { type TokenValue } from '@/composables/use-tokens.ts';
+import useTokens from '@/composables/use-tokens.ts';
 import UiToken from '@/components/ui/Token.vue';
 
 const props = defineProps<{
     simulation: SimulateBundleResult,
-    userAddress: string,
+    userAddress: Address,
+    spendAddress: Address,
+    receiveAddress: Address,
 }>();
 
-const { tokens, fetchTokenInfo } = useTokens();
+const { tokens, fetchTokenInfo, prepareToken } = useTokens();
+
+const gasPriceGwei = ref(10);
 
 const totalGasUsed = computed(() => {
     return props.simulation.reduce((sum: number, tx) => {
         return sum + parseInt(tx.gasUsed, 16);
     }, 0);
 });
+const ethFees = computed(() => {
+    return totalGasUsed.value * gasPriceGwei.value * 10 ** (9 - 18);
+});
+const usdFees = computed(() => {
+    return totalGasUsed.value * gasPriceGwei.value * 10 ** (9 - 18) * 3000;
+});
 
-const _assetChanges = computed<Array<AssetChange>>(() => {
-    const changes: AssetChange[] = [];
-
+const spendAmount = computed(() => {
+    let result = 0n;
     props.simulation.forEach((tx) => {
         tx.assetChanges?.forEach((change) => {
-            if (change.to === props.userAddress) {
-                changes.push(change);
+            if (change.from === props.userAddress && change.assetInfo.contractAddress === props.spendAddress) {
+                result += BigInt(change.rawAmount)
             }
         });
     });
-
-    return changes;
+    return result;
 });
 
-watch(_assetChanges, () => {
-    _assetChanges.value.forEach((change) => {
-        if (change.assetInfo && change.assetInfo.decimals === undefined) {
+const receiveAmount = computed(() => {
+    let result = 0n;
+    props.simulation.forEach((tx) => {
+        tx.assetChanges?.forEach((change) => {
+            if (change.to === props.userAddress && change.assetInfo.contractAddress === props.receiveAddress) {
+                result += BigInt(change.rawAmount)
+            }
+        });
+    });
+    return result;
+});
+
+const spendTokenValue = computed(() => {
+    return prepareToken(props.spendAddress, spendAmount.value);
+});
+const receiveTokenValue = computed(() => {
+    return prepareToken(props.receiveAddress, receiveAmount.value);
+});
+
+const profit = computed(() => {
+    // @TODO adjust receiveTokenValue on market maturity
+    return (receiveTokenValue.value.usdValue || 0) - (spendTokenValue.value.usdValue || 0) - usdFees.value;
+});
+const profitPercent = computed(() => {
+    if (!spendTokenValue.value.usdValue) {
+        return 0;
+    }
+    return profit.value / spendTokenValue.value.usdValue * 100;
+});
+
+watch([() => props.spendAddress, () => props.receiveAddress], (addressList) => {
+    addressList.forEach((contractAddress) => {
+        if (!tokens[contractAddress] || tokens[contractAddress].decimals === undefined) {
             console.log('fetchTokenInfo');
-            fetchTokenInfo(change.assetInfo.contractAddress);
+            fetchTokenInfo(contractAddress);
         }
     });
 }, {
     immediate: true,
 });
-
-const assetChanges = computed<Array<AssetChange>>(() => {
-    return _assetChanges.value.map((change) => {
-        if (!change.assetInfo) {
-            return change;
-        }
-
-        const token = tokens[change.assetInfo.contractAddress];
-        return {
-            ...change,
-            assetInfo: {
-                ...change.assetInfo,
-                decimals: change.assetInfo.decimals ?? token.decimals,
-                symbol: change.assetInfo.symbol ?? token.symbol,
-            },
-            amount: change.amount ?? (token.decimals ? formatUnits(hexToBigInt(change.rawAmount), token.decimals) : undefined)
-        };
-    });
-});
-
-function formatChangeToToken(assetChange: AssetChange): Partial<TokenValue> {
-    return {
-        symbol: assetChange.assetInfo.symbol,
-        amount: assetChange.amount,
-        logo: assetChange.assetInfo.logo,
-    };
-}
 </script>
 
 <template>
     <div>
 
         <UiToken
-            v-for="change in assetChanges"
-            :key="change.assetInfo.contractAddress"
-            :token="formatChangeToToken(change)"
+            :token="spendTokenValue"
+        />
+        <UiToken
+            :token="receiveTokenValue"
         />
 
         <div class="space-y-4">
@@ -103,15 +115,15 @@ function formatChangeToToken(assetChange: AssetChange): Partial<TokenValue> {
                     <div class="flex justify-between items-center">
                         <span class="text-sm font-medium leading-none">Fees:</span>
                         <span class="text-sm">
-                            {{ pretty(totalGasUsed * 10 * 10 ** (9 - 18)) }} ETH
-                            <span class="text-muted text-sm">${{ prettyUsd(totalGasUsed * 10 * 10 ** (9 - 18) * 3000) }}</span>
+                            {{ pretty(ethFees) }} ETH
+                            <span class="text-muted text-sm">${{ prettyUsd(usdFees) }}</span>
                         </span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-sm font-medium leading-none">Profit:</span>
                         <span class="text-sm">
-                            {{ prettyUsd(15) }} %
-                            <span class="text-muted text-sm">${{ prettyUsd(100) }}</span>
+                            {{ prettyUsd(profitPercent) }}%
+                            <span class="text-muted text-sm">${{ prettyUsd(profit) }}</span>
                         </span>
                     </div>
                 </div>
@@ -120,6 +132,3 @@ function formatChangeToToken(assetChange: AssetChange): Partial<TokenValue> {
     </div>
 </template>
 
-<style scoped>
-
-</style>

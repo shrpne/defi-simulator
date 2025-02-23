@@ -15,6 +15,7 @@ export function simulationBundleTokensExtractor(
                 name: asset.name,
                 logo: asset.logo,
                 decimals: asset.decimals,
+                price: asset.dollarValue ? Number(asset.dollarValue) : undefined,
             });
         }));
     }

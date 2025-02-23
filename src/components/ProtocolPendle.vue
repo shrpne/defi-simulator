@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { simulateBundleRpc, type SimulateBundleResult } from '@/lib/api/tenderly.ts';
 import { simulationBundleTokensExtractor } from '@/lib/api/tenderly-utils.ts';
 import { getMarkets, getAssetsPrices, getAssetsMetadata, prepareMarketSwapTx, type PendleMarketData } from '@/lib/api/pendle.ts';
-import { pendlePriceExtractor, pendleMetadataExtractor } from '@/lib/api/pendle-utils.ts';
+import { pendlePriceExtractor, pendleMetadataExtractor, getContractAddressWithoutChain } from '@/lib/api/pendle-utils.ts';
 import { getWalletTokenBalances, type Erc20Value, type EvmErc20TokenBalanceWithPrice } from '@/lib/api/moralis.ts';
 import { balancePriceTokensExtractor, balancePriceTokensPreparator } from '@/lib/api/moralis-utils.ts';
 import { buildApproveTx, encodeApproveData } from '@/lib/web3-utils.ts';
@@ -57,18 +57,22 @@ const selectedToken = ref<TokenValue>();
 const selectedMarket = ref<PendleMarketData>();
 const simulationResult = ref<SimulateBundleResult>();
 
+const selectedMarketPt = computed(() => {
+    return getContractAddressWithoutChain(selectedMarket.value?.pt)
+})
+
 const isLoading = computed(() => {
     return marketsStatus.value === 'pending' || balanceStatus.value === 'pending';
 });
 
 async function handleSubmit() {
     console.log('Swap', selectedToken.value, 'to', selectedMarket.value);
-    if (!selectedToken.value?.contractAddress || !selectedMarket.value) {
+    if (!selectedToken.value?.contractAddress || !selectedMarket.value || !selectedMarketPt.value) {
         return;
     }
     const tokenIn = selectedToken.value.contractAddress;
     const amountIn = selectedToken.value.value.toString();
-    const tokenOut = selectedMarket.value.pt.split('-')[1];
+    const tokenOut = selectedMarketPt.value;
 
     const { tx } = await prepareMarketSwapTx({
         market: selectedMarket.value.address,
@@ -203,6 +207,12 @@ const formatExpiry = (expiry: string) => {
             </button>
         </form>
 
-        <ProtocolEstimationResult v-if="simulationResult" :simulation="simulationResult" :user-address="walletAddress" />
+        <ProtocolEstimationResult
+            v-if="simulationResult && selectedToken && selectedMarketPt"
+            :simulation="simulationResult"
+            :user-address="walletAddress"
+            :spend-address="selectedToken.contractAddress"
+            :receive-address="selectedMarketPt"
+        />
     </div>
 </template>

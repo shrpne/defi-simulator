@@ -15,7 +15,7 @@ export type TokenInfo = {
 export type TokenValue = TokenInfo & {
     value: bigint;
     amount: string;
-    usdValue?: string;
+    usdValue?: number;
 }
 
 const tokens = shallowReactive<Record<Address, TokenInfo>>({});
@@ -23,8 +23,10 @@ const tokens = shallowReactive<Record<Address, TokenInfo>>({});
 function updateTokens(list: Array<TokenInfo>) {
     list.forEach((token) => {
         tokens[token.contractAddress] = {
-            ...tokens[token.contractAddress],
             ...token,
+            ...tokens[token.contractAddress],
+            // only overwrite price
+            ...(token.price && { price: token.price }),
         };
     });
 }
@@ -45,16 +47,20 @@ function fetchTokenInfo(tokenAddress: Address) {
         });
 }
 
-function prepareToken(tokenAddress: Address, value: bigint | string | number): TokenValue {
+function prepareToken(tokenAddress: Address, _value: bigint | string | number): TokenValue {
     const tokenInfo = tokens[tokenAddress];
     if (!tokenInfo || tokenInfo.decimals === undefined || tokenInfo.decimals === null) {
         throw new Error(`Token info not found for address: ${tokenAddress}`);
     }
+
+    const value = BigInt(_value);
+    const amount = formatUnits(value, tokenInfo.decimals)
+
     return {
         ...tokenInfo,
-        value: BigInt(value),
-        amount: formatUnits(BigInt(value), tokenInfo.decimals),
-        usdValue: typeof tokenInfo.price !== 'undefined' ? (Number(value) * tokenInfo.price).toString() : undefined,
+        value,
+        amount,
+        usdValue: typeof tokenInfo.price !== 'undefined' ? Number(amount) * tokenInfo.price : undefined,
     };
 }
 

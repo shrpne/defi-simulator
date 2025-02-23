@@ -24,3 +24,14 @@ export function pendleMetadataExtractor(
             }
         });
 }
+
+export function getContractAddressWithoutChain(address?: string): Address|undefined {
+    if (!address) {
+        return undefined;
+    }
+    const hex = address.includes('-') ? address.split('-')[1] : address;
+    if (!isAddress(hex)) {
+        return undefined;
+    }
+    return hex;
+}
