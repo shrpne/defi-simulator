@@ -6,7 +6,7 @@ import { simulationBundleTokensExtractor, getReceiveAmountFromSimulationBundle, 
 import { getMarkets, getAssetsPrices, getAssetsMetadata, prepareMarketSwapTx, type PendleMarketData } from '@/lib/api/pendle.ts';
 import { pendlePriceExtractor, pendleMetadataExtractor, getContractAddressWithoutChain } from '@/lib/api/pendle-utils.ts';
 import { getWalletTokenBalances, type Erc20Value, type EvmErc20TokenBalanceWithPrice } from '@/lib/api/moralis.ts';
-import { balancePriceTokensExtractor, balancePriceTokensPreparator } from '@/lib/api/moralis-utils.ts';
+import { balancePriceTokensExtractor, balancePriceTokensFormatter } from '@/lib/api/moralis-utils.ts';
 import { getSwapQuote } from '@/lib/api/lifi.ts';
 import { getSwapQuoteTokensExtractor, getGasUsedFromSwapQuote, getReceiveAmountFromSwapQuote } from '@/lib/api/lifi-utils.ts';
 import { buildApproveTx, encodeApproveData } from '@/lib/web3-utils.ts';
@@ -21,7 +21,7 @@ import ProtocolEstimationResult from '@/components/ProtocolEstimationResult.vue'
 
 
 const { connectedWallet } = useOnboard();
-const { tokens, extractTokens, prepareToken } = useTokens();
+const { tokens, extractTokens, getTokenValue, prepareToken } = useTokens();
 
 extractTokens(getAssetsPrices(), pendlePriceExtractor);
 extractTokens(getAssetsMetadata(), pendleMetadataExtractor);
@@ -53,7 +53,7 @@ const {
 });
 
 const balance = computed(() => {
-    return balancePriceTokensPreparator(_balance.value || [], prepareToken);
+    return balancePriceTokensFormatter(_balance.value || [], getTokenValue);
 });
 
 const selectedToken = ref<TokenValue>();
@@ -74,6 +74,7 @@ const isLoading = computed(() => {
 
 async function handleSubmit() {
     console.log('Swap', selectedToken.value, 'to', selectedMarket.value);
+    // STEP #1
     if (!selectedToken.value?.contractAddress || !selectedMarket.value || !selectedMarketPt.value) {
         return;
     }
@@ -97,7 +98,7 @@ async function handleSubmit() {
             data: encodeApproveData(tx.to, amountIn),
             // value: 0,
         },
-        // swap
+        // zap into market
         {
             from: tx.from,
             to: tx.to,
@@ -109,32 +110,33 @@ async function handleSubmit() {
     simulationSteps.value[0] = {
         name: 'Enter market',
         gas: getGasUsedFromSimulationBundle(simulation),
-        receive: prepareToken(tokenOut, getReceiveAmountFromSimulationBundle(simulation, walletAddress.value, tokenOut)),
+        receive: await prepareToken(tokenOut, getReceiveAmountFromSimulationBundle(simulation, walletAddress.value, tokenOut)),
     };
     simulationResult.value = simulation;
 
+    // STEP #2
     if (!selectedMarketUnderlying.value) {
         return;
     }
     simulationSteps.value[1] = {
         name: 'Redeem matured PT into underlying',
         gas: 300_000,
-        receive: prepareToken(selectedMarketUnderlying.value, simulationSteps.value[0].receive.value),
+        receive: await prepareToken(selectedMarketUnderlying.value, simulationSteps.value[0].receive.value),
     };
 
-
+    // STEP #3
     const quote = await extractTokens(getSwapQuote({
         fromAddress: walletAddress.value,
         fromToken: selectedMarketUnderlying.value,
         toToken: tokenIn,
-        fromAmount: '55000000000000000000000',
+        fromAmount: simulationSteps.value[0].receive.value.toString(),
     }), getSwapQuoteTokensExtractor)
     console.log('quote', quote);
 
     simulationSteps.value[2] = {
         name: 'Swap',
         gas: getGasUsedFromSwapQuote(quote),
-        receive: prepareToken(selectedMarketUnderlying.value, getReceiveAmountFromSwapQuote(quote)),
+        receive: await prepareToken(tokenIn, getReceiveAmountFromSwapQuote(quote)),
     };
 }
 
@@ -252,5 +254,9 @@ const formatExpiry = (expiry: string) => {
             :receive-address="selectedMarketPt"
             :underlying-address="selectedMarketUnderlying"
         />
+
+        <pre>
+            {{ tokens['0x4c9edd5852cd905f086c759e8383e09bff1e68b3'] }}
+        </pre>
     </div>
 </template>

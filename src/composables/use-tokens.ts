@@ -1,6 +1,7 @@
 import { ref, shallowReactive, computed } from 'vue';
 import {type Address, formatUnits } from 'viem';
 import { getTokenInfo } from '@/lib/api/web3.ts';
+import { type NonNullableFields } from '@/utils/structs.ts';
 
 export type TokenInfo = {
     contractAddress: Address;
@@ -47,9 +48,16 @@ function fetchTokenInfo(tokenAddress: Address) {
         });
 }
 
-function prepareToken(tokenAddress: Address, _value: bigint | string | number): TokenValue {
-    const tokenInfo = tokens[tokenAddress];
+function isValidTokenInfo(tokenInfo: TokenInfo): tokenInfo is NonNullableFields<TokenInfo, 'decimals'> {
     if (!tokenInfo || tokenInfo.decimals === undefined || tokenInfo.decimals === null) {
+        return false;
+    }
+    return true;
+}
+
+function getTokenValue(tokenAddress: Address, _value: bigint | string | number): TokenValue {
+    const tokenInfo = tokens[tokenAddress];
+    if (!isValidTokenInfo(tokenInfo)) {
         throw new Error(`Token info not found for address: ${tokenAddress}`);
     }
 
@@ -64,7 +72,15 @@ function prepareToken(tokenAddress: Address, _value: bigint | string | number): 
     };
 }
 
-export type PrepareToken = typeof prepareToken;
+export type GetTokenValue = typeof getTokenValue;
+
+export async function prepareToken(...args: Parameters<GetTokenValue>): Promise<ReturnType<GetTokenValue>> {
+    const [tokenAddress, value] = args;
+    if (!isValidTokenInfo(tokens[tokenAddress])) {
+        await fetchTokenInfo(tokenAddress);
+    }
+    return getTokenValue(tokenAddress, value);
+}
 
 // function getTokenInfo(tokenAddress: string) {
 //     return computed(() => tokenStore.value[tokenAddress] ?? null);
@@ -78,6 +94,7 @@ export default function useTokens() {
         updateTokens,
         extractTokens,
         fetchTokenInfo,
+        getTokenValue,
         prepareToken,
     };
 }

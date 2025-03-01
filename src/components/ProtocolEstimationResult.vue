@@ -2,7 +2,6 @@
 import { ref, computed, watch } from 'vue';
 import { type Address } from 'viem';
 import type { EstimationStep, TokenValue } from '@/types.ts';
-import { type SimulateBundleResult } from '@/lib/api/tenderly-simlate-bundle-models.ts';
 import { pretty, prettyUsd } from '@/utils/pretty-num.ts';
 import useTokens from '@/composables/use-tokens.ts';
 import UiToken from '@/components/ui/Token.vue';
@@ -42,24 +41,6 @@ const profitPercent = computed(() => {
     }
     return profit.value / props.spendToken.usdValue * 100;
 });
-
-// watch([
-//     () => props.spendAddress,
-//     () => props.receiveAddress,
-//     () => props.underlyingAddress,
-// ], (addressList) => {
-//     addressList.forEach((contractAddress) => {
-//         if (!contractAddress) {
-//             return;
-//         }
-//         if (!tokens[contractAddress] || tokens[contractAddress].decimals === undefined) {
-//             console.log('fetchTokenInfo');
-//             fetchTokenInfo(contractAddress);
-//         }
-//     });
-// }, {
-//     immediate: true,
-// });
 </script>
 
 <template>

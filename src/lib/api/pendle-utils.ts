@@ -1,6 +1,6 @@
 import { type Address, isAddress } from 'viem';
 import { getAssetsPrices, getAssetsMetadata } from './pendle.ts';
-import type { TokenInfo, TokenValue, PrepareToken } from '@/composables/use-tokens.ts';
+import type { TokenInfo } from '@/composables/use-tokens.ts';
 
 export function pendlePriceExtractor(
     response: Awaited<ReturnType<typeof getAssetsPrices>>,

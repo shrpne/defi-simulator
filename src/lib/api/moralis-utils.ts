@@ -1,6 +1,6 @@
 import { type Address, isAddress } from 'viem';
 import { getWalletTokenBalances, type Erc20Value, type EvmErc20TokenBalanceWithPrice } from './moralis.ts';
-import type { TokenInfo, TokenValue, PrepareToken } from '@/composables/use-tokens.ts';
+import type { TokenInfo, TokenValue, GetTokenValue } from '@/composables/use-tokens.ts';
 import { omitNullish, type NonNullableFields } from '@/utils/structs.ts';
 
 export function balanceTokensExtractor(
@@ -21,9 +21,9 @@ export function balanceTokensExtractor(
         }));
 }
 
-export function balanceTokensPreparator(
+export function balanceTokensFormatter(
     balanceResponse: Array<Erc20Value>,
-    prepareToken: PrepareToken,
+    getTokenValue: GetTokenValue,
 ): Array<TokenValue> {
     return balanceResponse
         // ensure '.token' property is present and narrow type to it
@@ -31,11 +31,11 @@ export function balanceTokensPreparator(
             return !!item.token && isAddress(item.token.contractAddress.lowercase)
         })
         .map((item) => {
-            const params: Parameters<PrepareToken> = [
+            const params: Parameters<GetTokenValue> = [
                 item.token.contractAddress.lowercase,
                 item.amount.toBigInt(),
             ];
-            return prepareToken(...params);
+            return getTokenValue(...params);
         });
 }
 
@@ -56,19 +56,19 @@ export function balancePriceTokensExtractor(
         }));
 }
 
-export function balancePriceTokensPreparator(
+export function balancePriceTokensFormatter(
     balanceResponse: Awaited<ReturnType<typeof getWalletTokenBalances>>,
-    prepareToken: PrepareToken,
+    getTokenValue: GetTokenValue,
 ): Array<TokenValue> {
     return balanceResponse
         .filter((item): item is { tokenAddress: { lowercase: Address } } & EvmErc20TokenBalanceWithPrice => !!item.tokenAddress)
         .map((item) => {
-            const params: Parameters<PrepareToken> = [
+            const params: Parameters<GetTokenValue> = [
                 item.tokenAddress.lowercase,
                 item.balance.value.toBigInt(),
             ];
             try {
-                return prepareToken(...params);
+                return getTokenValue(...params);
             } catch (error) {
                 console.log('not prepared', item);
                 throw error;
