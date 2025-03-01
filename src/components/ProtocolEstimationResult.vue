@@ -1,25 +1,28 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { type Address } from 'viem';
+import type { EstimationStep, TokenValue } from '@/types.ts';
 import { type SimulateBundleResult } from '@/lib/api/tenderly-simlate-bundle-models.ts';
 import { pretty, prettyUsd } from '@/utils/pretty-num.ts';
 import useTokens from '@/composables/use-tokens.ts';
 import UiToken from '@/components/ui/Token.vue';
 
 const props = defineProps<{
-    simulation: SimulateBundleResult,
+    spendToken: TokenValue,
+    steps: Array<EstimationStep>,
     userAddress: Address,
     spendAddress: Address,
     receiveAddress: Address,
+    underlyingAddress?: Address,
 }>();
 
-const { tokens, fetchTokenInfo, prepareToken } = useTokens();
+const { tokens, fetchTokenInfo } = useTokens();
 
 const gasPriceGwei = ref(10);
 
 const totalGasUsed = computed(() => {
-    return props.simulation.reduce((sum: number, tx) => {
-        return sum + parseInt(tx.gasUsed, 16);
+    return props.steps.reduce((sum, step) => {
+        return sum + step.gas;
     }, 0);
 });
 const ethFees = computed(() => {
@@ -29,68 +32,41 @@ const usdFees = computed(() => {
     return totalGasUsed.value * gasPriceGwei.value * 10 ** (9 - 18) * 3000;
 });
 
-const spendAmount = computed(() => {
-    let result = 0n;
-    props.simulation.forEach((tx) => {
-        tx.assetChanges?.forEach((change) => {
-            if (change.from === props.userAddress && change.assetInfo.contractAddress === props.spendAddress) {
-                result += BigInt(change.rawAmount)
-            }
-        });
-    });
-    return result;
-});
-
-const receiveAmount = computed(() => {
-    let result = 0n;
-    props.simulation.forEach((tx) => {
-        tx.assetChanges?.forEach((change) => {
-            if (change.to === props.userAddress && change.assetInfo.contractAddress === props.receiveAddress) {
-                result += BigInt(change.rawAmount)
-            }
-        });
-    });
-    return result;
-});
-
-const spendTokenValue = computed(() => {
-    return prepareToken(props.spendAddress, spendAmount.value);
-});
-const receiveTokenValue = computed(() => {
-    return prepareToken(props.receiveAddress, receiveAmount.value);
-});
-
 const profit = computed(() => {
-    // @TODO adjust receiveTokenValue on market maturity
-    return (receiveTokenValue.value.usdValue || 0) - (spendTokenValue.value.usdValue || 0) - usdFees.value;
+    const finalTokenValue = props.steps.at(-1)?.receive;
+    return (finalTokenValue?.usdValue || 0) - (props.spendToken.usdValue || 0) - usdFees.value;
 });
 const profitPercent = computed(() => {
-    if (!spendTokenValue.value.usdValue) {
+    if (!props.spendToken.usdValue) {
         return 0;
     }
-    return profit.value / spendTokenValue.value.usdValue * 100;
+    return profit.value / props.spendToken.usdValue * 100;
 });
 
-watch([() => props.spendAddress, () => props.receiveAddress], (addressList) => {
-    addressList.forEach((contractAddress) => {
-        if (!tokens[contractAddress] || tokens[contractAddress].decimals === undefined) {
-            console.log('fetchTokenInfo');
-            fetchTokenInfo(contractAddress);
-        }
-    });
-}, {
-    immediate: true,
-});
+// watch([
+//     () => props.spendAddress,
+//     () => props.receiveAddress,
+//     () => props.underlyingAddress,
+// ], (addressList) => {
+//     addressList.forEach((contractAddress) => {
+//         if (!contractAddress) {
+//             return;
+//         }
+//         if (!tokens[contractAddress] || tokens[contractAddress].decimals === undefined) {
+//             console.log('fetchTokenInfo');
+//             fetchTokenInfo(contractAddress);
+//         }
+//     });
+// }, {
+//     immediate: true,
+// });
 </script>
 
 <template>
     <div>
 
-        <UiToken
-            :token="spendTokenValue"
-        />
-        <UiToken
-            :token="receiveTokenValue"
+        <UiToken v-for="(step, i) in steps" :key="i"
+            :token="step.receive"
         />
 
         <div class="space-y-4">

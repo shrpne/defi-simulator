@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
+import { type EstimationStep } from '@/types.ts';
 import { simulateBundleRpc, type SimulateBundleResult } from '@/lib/api/tenderly.ts';
-import { simulationBundleTokensExtractor } from '@/lib/api/tenderly-utils.ts';
+import { simulationBundleTokensExtractor, getReceiveAmountFromSimulationBundle, getGasUsedFromSimulationBundle } from '@/lib/api/tenderly-utils.ts';
 import { getMarkets, getAssetsPrices, getAssetsMetadata, prepareMarketSwapTx, type PendleMarketData } from '@/lib/api/pendle.ts';
 import { pendlePriceExtractor, pendleMetadataExtractor, getContractAddressWithoutChain } from '@/lib/api/pendle-utils.ts';
 import { getWalletTokenBalances, type Erc20Value, type EvmErc20TokenBalanceWithPrice } from '@/lib/api/moralis.ts';
 import { balancePriceTokensExtractor, balancePriceTokensPreparator } from '@/lib/api/moralis-utils.ts';
+import { getSwapQuote } from '@/lib/api/lifi.ts';
+import { getSwapQuoteTokensExtractor, getGasUsedFromSwapQuote, getReceiveAmountFromSwapQuote } from '@/lib/api/lifi-utils.ts';
 import { buildApproveTx, encodeApproveData } from '@/lib/web3-utils.ts';
 
 import { useOnboard } from '@web3-onboard/vue';
@@ -56,10 +59,14 @@ const balance = computed(() => {
 const selectedToken = ref<TokenValue>();
 const selectedMarket = ref<PendleMarketData>();
 const simulationResult = ref<SimulateBundleResult>();
+const simulationSteps = ref<Array<EstimationStep>>([]);
 
 const selectedMarketPt = computed(() => {
     return getContractAddressWithoutChain(selectedMarket.value?.pt)
-})
+});
+const selectedMarketUnderlying = computed(() => {
+    return getContractAddressWithoutChain(selectedMarket.value?.underlyingAsset)
+});
 
 const isLoading = computed(() => {
     return marketsStatus.value === 'pending' || balanceStatus.value === 'pending';
@@ -82,7 +89,7 @@ async function handleSubmit() {
         receiver: walletAddress.value,
     });
 
-    const result = await extractTokens(simulateBundleRpc([
+    const simulation = await extractTokens(simulateBundleRpc([
         // approve tokenIn
         {
             from: walletAddress.value,
@@ -98,8 +105,37 @@ async function handleSubmit() {
             // value: tx.value,
         },
     ]), simulationBundleTokensExtractor);
-    console.log(result);
-    simulationResult.value = result;
+    console.log('simulation', simulation);
+    simulationSteps.value[0] = {
+        name: 'Enter market',
+        gas: getGasUsedFromSimulationBundle(simulation),
+        receive: prepareToken(tokenOut, getReceiveAmountFromSimulationBundle(simulation, walletAddress.value, tokenOut)),
+    };
+    simulationResult.value = simulation;
+
+    if (!selectedMarketUnderlying.value) {
+        return;
+    }
+    simulationSteps.value[1] = {
+        name: 'Redeem matured PT into underlying',
+        gas: 300_000,
+        receive: prepareToken(selectedMarketUnderlying.value, simulationSteps.value[0].receive.value),
+    };
+
+
+    const quote = await extractTokens(getSwapQuote({
+        fromAddress: walletAddress.value,
+        fromToken: selectedMarketUnderlying.value,
+        toToken: tokenIn,
+        fromAmount: '55000000000000000000000',
+    }), getSwapQuoteTokensExtractor)
+    console.log('quote', quote);
+
+    simulationSteps.value[2] = {
+        name: 'Swap',
+        gas: getGasUsedFromSwapQuote(quote),
+        receive: prepareToken(selectedMarketUnderlying.value, getReceiveAmountFromSwapQuote(quote)),
+    };
 }
 
 const formatExpiry = (expiry: string) => {
@@ -209,10 +245,12 @@ const formatExpiry = (expiry: string) => {
 
         <ProtocolEstimationResult
             v-if="simulationResult && selectedToken && selectedMarketPt"
-            :simulation="simulationResult"
+            :spend-token="selectedToken"
+            :steps="simulationSteps"
             :user-address="walletAddress"
             :spend-address="selectedToken.contractAddress"
             :receive-address="selectedMarketPt"
+            :underlying-address="selectedMarketUnderlying"
         />
     </div>
 </template>

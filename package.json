@@ -14,6 +14,7 @@
     "swagger:pendle": "swagger-typescript-api -p 'https://api-v2.pendle.finance/core/docs-json' --no-client --extract-request-params --extract-response-body --type-prefix Pendle -o ./src/lib/api -n ${npm_config_file_name:=pendle-models.d.ts} --custom-config scripts/swagger-typescript-api/index.js"
   },
   "dependencies": {
+    "@lifi/sdk": "^3.5.4",
     "@primevue/themes": "^4.2.5",
     "@web3-onboard/injected-wallets": "^2.11.3",
     "@web3-onboard/vue": "^2.10.0",
