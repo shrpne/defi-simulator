@@ -1,3 +1,4 @@
+import type { ValueOf } from "type-fest";
 
 type OmitNullish<T> = {
     [K in keyof T as null extends T[K] ? K : (undefined extends T[K] ? K : never)]?: Exclude<T[K], undefined|null>;
@@ -16,3 +17,14 @@ type NonNullableObj<T> = {
 }
 
 export type NonNullableFields<T, K extends keyof T> = T & Required<NonNullableObj<Pick<T, K>>>
+
+// @see https://github.com/sodiray/radash/blob/master/src/object.ts#L56
+// @see https://github.com/toss/es-toolkit/blob/main/src/object/mapValues.ts
+export function mapValues<T extends object, MappedValue>(source: T, mapper: (value: ValueOf<T>, key: keyof T) => MappedValue) {
+    const result = {} as Record<keyof T, MappedValue>;
+    for (const key in source) {
+        result[key] = mapper(source[key] as ValueOf<typeof source>, key);
+    }
+
+    return result;
+}

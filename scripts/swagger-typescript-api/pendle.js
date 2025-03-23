@@ -1,4 +1,4 @@
-import onCreateComponent from './hook-on-create-component.js';
+import onCreateComponent from './hook-on-create-component-pendle.js';
 
 /** @type {import('swagger-typescript-api').GenerateApiParams} */
 export default {
