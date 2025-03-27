@@ -1,13 +1,14 @@
-:root {
-  --color-text: #111;
-  --color-border: var(--color-stone-300);
-  --color-background: #ffffff;
+@theme {
+    --color-text: var(--color-base-content);
+    --color-muted: color-mix(in oklch, var(--color-base-content) 65%, #0000);
+    --color-border: var(--color-base-200);
+    --color-background: var(--color-base-100);
 }
 
 :root.dark {
-  --color-text: #ffffff;
-  --color-border: #374151;
-  --color-background: #111827;
+    /*--color-text: #fff;*/
+    /*--color-border: #374151;*/
+    /*--color-background: #111827;*/
 }
 
 /*
@@ -26,29 +27,29 @@
 }*/
 
 body {
-  min-height: 100vh;
-  color: var(--color-text);
-  line-height: 1.5;
-  background: var(--color-background);
-  transition:
-    color 0.5s,
+    min-height: 100vh;
+    line-height: 1.5;
+    /* daisy theme used */
+    /*color: var(--color-text);*/
+    /*background: var(--color-background);*/
+    transition: color 0.5s,
     background-color 0.5s;
-  /*
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
-    sans-serif;
-  font-size: 15px;
-  text-rendering: optimizeLegibility;*/
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    /*
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      Oxygen,
+      Ubuntu,
+      Cantarell,
+      'Fira Sans',
+      'Droid Sans',
+      'Helvetica Neue',
+      sans-serif;
+    font-size: 15px;
+    text-rendering: optimizeLegibility;*/
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }

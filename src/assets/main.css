@@ -1,6 +1,9 @@
 @import "tailwindcss";
-
 @import './tailwind.css';
+@import './daisy-ui.css';
+
+
+
 @import './base.css';
 @import './forms.css';
 

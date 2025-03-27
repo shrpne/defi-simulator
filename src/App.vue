@@ -6,7 +6,7 @@ import ThemeToggle from '@/components/ThemeToggle.vue';
 
 <template>
     <header
-        class="border-b border-stone-300 dark:border-slate-700 bg-stone-50 dark:bg-slate-900 flex justify-between items-center py-3 px-4 mb-12"
+        class="border-b border-border flex justify-between items-center py-3 px-4 mb-12"
     >
         <h1 class="text-xl font-semibold">ETH Gas Estimator</h1>
         <div class="flex items-center gap-4">
@@ -16,7 +16,7 @@ import ThemeToggle from '@/components/ThemeToggle.vue';
     </header>
 
     <div
-        class="container-xs mx-auto rounded-[0.5rem] border border-stone-300 dark:border-stone-700 py-4 px-4"
+        class="container-xs mx-auto card card-border card-body"
     >
         <main>
             <ProtocolList />

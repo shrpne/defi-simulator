@@ -50,6 +50,7 @@ async function simulate() {
                 </p>
             </div>
             <button type="button" class="button button--ghost button--medium ml-auto shrink-0" @click="simulate()">Simulate</button>
+            <button type="button" class="btn btn-sm btn-outline ml-auto shrink-0" @click="simulate()">Simulate</button>
         </div>
 
         <ProtocolPendle/>

@@ -3,11 +3,12 @@ import { ref, onMounted, watch } from 'vue';
 
 type Theme = 'light' | 'dark' | 'system';
 const theme = ref<Theme>('system');
-const isDark = ref(false);
+const themeClass = ref<Exclude<Theme, 'system'> | ''>('');
 
 function updateThemeBasedOnSystem() {
     if (theme.value === 'system') {
-        isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        themeClass.value = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        // themeClass.value = '';
     }
 }
 
@@ -21,25 +22,22 @@ onMounted(() => {
     window
         .matchMedia('(prefers-color-scheme: dark)')
         .addEventListener('change', updateThemeBasedOnSystem);
-
-    if (savedTheme === 'dark') {
-        isDark.value = true;
-    }
 });
 
 watch(theme, (newValue) => {
     localStorage.setItem('theme', newValue);
-    if (theme.value === 'dark') {
-        isDark.value = true;
-    } else if (theme.value === 'system') {
+    if (theme.value === 'system') {
         updateThemeBasedOnSystem();
-    } else if (theme.value === 'light') {
-        isDark.value = false;
+    } else {
+        themeClass.value = theme.value;
     }
 });
 
-watch(isDark, () => {
-    document.documentElement.classList.toggle('dark', isDark.value);
+watch(themeClass, () => {
+    document.documentElement.classList.toggle('dark', themeClass.value === 'dark');
+    document.documentElement.classList.toggle('light', themeClass.value === 'light');
+}, {
+    immediate: true,
 });
 
 function toggleTheme() {

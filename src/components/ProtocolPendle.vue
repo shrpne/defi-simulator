@@ -157,8 +157,8 @@ const formatExpiry = (expiry: string) => {
 <template>
     <div>
         <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Enter Pendle Market</h2>
-            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <h2 class="text-2xl font-bold">Enter Pendle Market</h2>
+            <p class="mt-2 text-sm text-muted">
                 Select your token and the Pendle market you want to enter
             </p>
         </div>
@@ -179,7 +179,7 @@ const formatExpiry = (expiry: string) => {
         <form v-else @submit.prevent="handleSubmit()" class="space-y-4">
             <!-- Token Selection -->
             <div class="relative">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                <label class="block text-sm font-medium  mb-2"
                 >You Pay</label
                 >
                 <Select
@@ -194,7 +194,7 @@ const formatExpiry = (expiry: string) => {
                             v-if="slotProps.value"
                             :token="slotProps.value"
                         />
-                        <span v-else class="text-gray-500">Select a token</span>
+                        <span v-else class="text-muted">Select a token</span>
                     </template>
                     <template #option="slotProps: { option: TokenValue }">
                         <UiToken
@@ -207,7 +207,7 @@ const formatExpiry = (expiry: string) => {
 
             <!-- Market Selection -->
             <div class="relative">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                <label class="block text-sm font-medium  mb-2"
                 >You Enter</label
                 >
                 <Select
@@ -223,7 +223,7 @@ const formatExpiry = (expiry: string) => {
                             :token="{symbol: slotProps.value.name}"
                             :text="formatExpiry(slotProps.value.expiry)"
                         />
-                        <span v-else class="text-gray-500">Select a market</span>
+                        <span v-else class="text-muted">Select a market</span>
                     </template>
                     <template #option="slotProps: { option: PendleMarketData }">
                         <UiToken
@@ -238,7 +238,7 @@ const formatExpiry = (expiry: string) => {
             <!-- Submit Button -->
             <button
                 type="submit"
-                class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="btn btn-primary btn-lg w-full"
                 :disabled="!selectedToken || !selectedMarket"
             >
                 Enter Market
