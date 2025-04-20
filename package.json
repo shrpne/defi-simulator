@@ -25,10 +25,13 @@
     "daisyui": "^5.0.9",
     "decamelize-keys": "^2.0.1",
     "entity-decode": "^3.0.0",
+    "es-toolkit": "^1.34.1",
     "moralis": "^2.27.2",
-    "pretty-num": "^0.6.0",
+    "pretty-num": "^0.6.1",
     "primevue": "^4.3.3",
-    "vue": "^3.5.13"
+    "reka-ui": "^2.1.1",
+    "vue": "^3.5.13",
+    "vue-imask": "^7.6.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.17",

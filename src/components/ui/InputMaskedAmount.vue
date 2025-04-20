@@ -1,0 +1,105 @@
+<script>
+import {IMaskDirective} from 'vue-imask';
+
+export default {
+    imaskAmount: {
+        mask: Number,
+        scale: 18, // digits after point, 0 for integers
+        signed: false,  // disallow negative
+        thousandsSeparator: '',  // any single char
+        padFractionalZeros: false,  // if true, then pads zeros at end to the length of scale
+        normalizeZeros: false, // appends or removes zeros at ends
+        radix: '.',  // fractional delimiter
+        mapToRadix: [',', 'ю', 'Ю', 'б', 'Б'],  // symbols to process as radix
+    },
+    directives: {
+        imask: IMaskDirective,
+    },
+    props: {
+        modelValue: {
+            type: [String, Number],
+            default: '',
+        },
+        scale: {
+            type: [String, Number],
+        },
+        isPercent: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    emits: [
+        'update:modelValue',
+    ],
+    data() {
+        return {
+            // inner value set by imask
+            maskedValue: '',
+        };
+    },
+    computed: {
+        // all parent listeners except `input`
+        // listeners() {
+        //     const {input, ...listeners} = this.$listeners;
+        //     return listeners;
+        // },
+        imaskOptions() {
+            const amountOptions = {
+                ...this.$options.imaskAmount,
+                scale: this.scale ?? this.$options.imaskAmount.scale,
+            };
+
+            if (this.isPercent) {
+                return {
+                    mask: [
+                        // make lazy: falsy only for not empty inputs
+                        {mask: ''},
+                        {
+                            mask: 'num`%',
+                            lazy: false,
+                            blocks: {
+                                num: amountOptions,
+                            },
+                        },
+                    ],
+                };
+            } else {
+                return amountOptions;
+            }
+        },
+    },
+    watch: {
+        modelValue(newVal) {
+            // typed value has to be updated if prop value changed programmatically
+            if (newVal !== this.maskedValue) {
+                this.updateMaskState(newVal);
+            }
+        },
+    },
+    mounted() {
+        this.updateMaskState(this.modelValue);
+    },
+    methods: {
+        updateMaskState(value) {
+            if (!this.$refs.input.maskRef) {
+                return;
+            }
+            // updating typed value not work anymore for some reason
+            // this.$refs.input.maskRef.typedValue = value;
+            this.$refs.input.value = value;
+            this.$refs.input.maskRef._onChange();
+            const maskedValue = this.$refs.input.maskRef._value;
+            const cursorPos = maskedValue.length;
+            this.$refs.input.maskRef._selection = {start: cursorPos, end: cursorPos};
+        },
+        onAcceptInput(e) {
+            this.maskedValue = e.detail._unmaskedValue;
+            this.$emit('update:modelValue', e.detail._unmaskedValue);
+        },
+    },
+};
+</script>
+
+<template>
+    <input type="text" autocapitalize="off" inputmode="decimal" v-imask="imaskOptions" @accept="onAcceptInput($event)" ref="input"/>
+</template>

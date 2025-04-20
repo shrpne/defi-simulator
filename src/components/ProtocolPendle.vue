@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue';
+import {parseUnits} from 'viem';
 import { type EstimationStep } from '@/types.ts';
 import { simulateBundleRpc, type SimulateBundleResult } from '@/lib/api/tenderly.ts';
 import { simulationBundleTokensExtractor, getReceiveAmountFromSimulationBundle, getGasUsedFromSimulationBundle } from '@/lib/api/tenderly-utils.ts';
@@ -16,6 +17,7 @@ import useAsyncAction from '@/composables/use-async-action.ts';
 import useTokens, { type TokenValue } from '@/composables/use-tokens.ts';
 
 import Select from 'primevue/select';
+import FieldCoin from '@/components/ui/FieldCoin.vue';
 import UiToken from '@/components/ui/Token.vue';
 import ProtocolEstimationResult from '@/components/ProtocolEstimationResult.vue';
 
@@ -57,9 +59,20 @@ const balance = computed(() => {
 });
 
 const selectedToken = ref<TokenValue>();
+const selectedAmount = ref<string>('');
 const selectedMarket = ref<PendleMarketData>();
 const simulationResult = ref<SimulateBundleResult>();
 const simulationSteps = ref<Array<EstimationStep>>([]);
+
+const spendTokenValue = computed(() => {
+    if (!selectedToken.value || !selectedAmount.value) {
+        return;
+    }
+    return getTokenValue(
+        selectedToken.value.contractAddress,
+        parseUnits(selectedAmount.value, selectedToken.value.decimals),
+    );
+})
 
 const selectedMarketPt = computed(() => {
     return getContractAddressWithoutChain(selectedMarket.value?.pt)
@@ -73,13 +86,13 @@ const isLoading = computed(() => {
 });
 
 async function handleSubmit() {
-    console.log('Swap', selectedToken.value, 'to', selectedMarket.value);
+    console.log('Swap', spendTokenValue.value, 'to', spendTokenValue.value);
     // STEP #1
-    if (!selectedToken.value?.contractAddress || !selectedMarket.value || !selectedMarketPt.value) {
+    if (!spendTokenValue.value?.contractAddress || !selectedMarket.value || !selectedMarketPt.value || !walletAddress.value) {
         return;
     }
-    const tokenIn = selectedToken.value.contractAddress;
-    const amountIn = selectedToken.value.value.toString();
+    const tokenIn = spendTokenValue.value.contractAddress;
+    const amountIn = spendTokenValue.value.value.toString();
     const tokenOut = selectedMarketPt.value;
 
     const { tx } = await prepareMarketSwapTx({
@@ -179,10 +192,10 @@ const formatExpiry = (expiry: string) => {
         <form v-else @submit.prevent="handleSubmit()" class="space-y-4">
             <!-- Token Selection -->
             <div class="relative">
-                <label class="block text-sm font-medium  mb-2"
+                <label class="block text-sm font-medium mb-2"
                 >You Pay</label
                 >
-                <Select
+                <!--<Select
                     v-model="selectedToken"
                     :options="balance"
                     optionLabel="token.symbol"
@@ -202,7 +215,41 @@ const formatExpiry = (expiry: string) => {
                             :token="slotProps.option"
                         />
                     </template>
-                </Select>
+                </Select>-->
+                <!--<FieldCoinDropdown
+                    v-model="selectedToken"
+                    :options="balance"
+                    :get-display-value="(val) => val?.contractAddress || ''"
+                >
+                    <template #option="{option}: { option: TokenValue }">
+                        <UiToken
+                            class="grow"
+                            :token="option"
+                        />
+                    </template>
+                </FieldCoinDropdown>-->
+                <FieldCoin
+                    v-model:coin="selectedToken"
+                    v-model:amount="selectedAmount"
+                    :options="balance"
+                    :get-display-value="(val) => val?.contractAddress || ''"
+                    label="You Pay"
+                    placeholder="0.00"
+                >
+                    <template #value="slotProps: { value: TokenValue, placeholder: string }">
+                        <UiToken
+                            v-if="slotProps.value"
+                            :token="slotProps.value"
+                        />
+                        <span v-else class="text-muted">Select a token</span>
+                    </template>
+                    <template #option="{option}: { option: TokenValue }">
+                        <UiToken
+                            class="grow"
+                            :token="option"
+                        />
+                    </template>
+                </FieldCoin>
             </div>
 
             <!-- Market Selection -->
@@ -239,18 +286,18 @@ const formatExpiry = (expiry: string) => {
             <button
                 type="submit"
                 class="btn btn-primary btn-lg w-full"
-                :disabled="!selectedToken || !selectedMarket"
+                :disabled="!spendTokenValue || !selectedMarket"
             >
                 Enter Market
             </button>
         </form>
 
         <ProtocolEstimationResult
-            v-if="simulationResult && selectedToken && selectedMarketPt"
-            :spend-token="selectedToken"
+            v-if="simulationResult && spendTokenValue && selectedMarketPt && walletAddress"
+            :spend-token="spendTokenValue"
             :steps="simulationSteps"
             :user-address="walletAddress"
-            :spend-address="selectedToken.contractAddress"
+            :spend-address="walletAddress"
             :receive-address="selectedMarketPt"
             :underlying-address="selectedMarketUnderlying"
         />

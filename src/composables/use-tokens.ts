@@ -12,8 +12,9 @@ export type TokenInfo = {
 
     price?: number;
 };
+export type TokenInfoValid = NonNullableFields<TokenInfo, 'decimals'>
 
-export type TokenValue = TokenInfo & {
+export type TokenValue = TokenInfoValid & {
     value: bigint;
     amount: string;
     usdValue?: number;
@@ -48,20 +49,20 @@ function fetchTokenInfo(tokenAddress: Address) {
         });
 }
 
-function isValidTokenInfo(tokenInfo: TokenInfo): tokenInfo is NonNullableFields<TokenInfo, 'decimals'> {
+function isValidTokenInfo(tokenInfo: TokenInfo): tokenInfo is TokenInfoValid {
     if (!tokenInfo || tokenInfo.decimals === undefined || tokenInfo.decimals === null) {
         return false;
     }
     return true;
 }
 
-function getTokenValue(tokenAddress: Address, _value: bigint | string | number): TokenValue {
+function getTokenValue(tokenAddress: Address, weiValue: bigint | string | number): TokenValue {
     const tokenInfo = tokens[tokenAddress];
     if (!isValidTokenInfo(tokenInfo)) {
         throw new Error(`Token info not found for address: ${tokenAddress}`);
     }
 
-    const value = BigInt(_value);
+    const value = BigInt(weiValue);
     const amount = formatUnits(value, tokenInfo.decimals)
 
     return {
