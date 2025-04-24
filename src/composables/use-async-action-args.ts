@@ -1,38 +1,34 @@
-import { ref, watch, getCurrentScope, onScopeDispose } from 'vue';
-import type { Ref, WatchSource, MultiWatchSources } from 'vue';
+import { ref } from 'vue';
+import type { Ref } from 'vue'
+import type { AsyncActionOptions, AsyncDataRequestStatus } from './use-async-action.ts'
 
-
-export type AsyncDataRequestStatus = 'idle' | 'pending' | 'success' | 'error';
-
-export interface AsyncActionResult<TData, TError> {
-    execute: () => Promise<TData | undefined>
-    ensure: () => Promise<TData | undefined>
+export interface AsyncActionResult<TData, TArgs extends Array<unknown>, TError> {
+    execute: (...args: TArgs) => Promise<TData | undefined>
     data: Ref<TData | undefined>
     status: Ref<AsyncDataRequestStatus>
     error: Ref<TError | undefined>
+    currentArgs: Ref<TArgs>
+    currentArg1: Ref<TArgs[0]>
 }
 
-export type AsyncActionOptions = {
-    immediate?: boolean
-    watch?: WatchSource | MultiWatchSources
-    dedupe?: 'cancel' | 'defer'
-}
 
-export default function useAsyncAction<
+export default function useAsyncActionWithArgs<
     TData,
+    TArgs extends Array<unknown>,
     TError extends Error = Error,
 >(
-    fn: () => Promise<TData>,
-    options: AsyncActionOptions = {},
-): AsyncActionResult<TData, TError> {
+    fn: (...args: TArgs) => Promise<TData>,
+    options: Pick<AsyncActionOptions, 'dedupe'> = {},
+): AsyncActionResult<TData, TArgs, TError> {
     const dedupe = options.dedupe ? options.dedupe : 'defer';
 
     const data = ref<TData | undefined>();
     const error = ref<TError | undefined>();
     const status = ref<AsyncDataRequestStatus>('idle');
+    const currentArgs = ref<TArgs>([] as unknown as TArgs) as Ref<TArgs>;
+    const currentArg1 = ref<TArgs[0]>();
 
     let list: Array<Promise<TData | undefined>> = [];
-    let lastPromise: Promise<TData | undefined> | undefined;
 
     function handleDedupeOnFulfillment(promise: Promise<TData | undefined>) {
         if (dedupe === 'cancel') {
@@ -60,13 +56,13 @@ export default function useAsyncAction<
         return { canceledWith: undefined };
     }
 
-    const execute = async () => {
+    const execute = async (...args: TArgs) => {
         if (dedupe === 'defer' && status.value === 'pending') {
             return list[0];
         }
 
         // run fn before updating status
-        const promise = fn()
+        const promise = fn(...args)
             .then((result) => {
                 const { canceledWith } = handleDedupeOnFulfillment(promise);
                 if (canceledWith) {
@@ -89,29 +85,11 @@ export default function useAsyncAction<
 
 
         status.value = 'pending';
-        lastPromise = promise;
+        currentArgs.value = args;
+        currentArg1.value = args[0];
         list.push(promise);
         return promise;
     };
 
-    const ensure = () => {
-        if (lastPromise) {
-            return lastPromise;
-        }
-        return execute();
-    }
-
-    if (options.immediate) {
-        execute();
-    }
-
-    const hasScope = getCurrentScope();
-    if (options.watch) {
-        const unSubscribe = watch(options.watch, () => execute());
-        if (hasScope) {
-            onScopeDispose(unSubscribe)
-        }
-    }
-
-    return { execute, ensure, data, error, status };
+    return { execute, data, error, status, currentArgs, currentArg1 };
 }
