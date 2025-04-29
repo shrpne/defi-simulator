@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue';
-import {parseUnits} from 'viem';
+import { formatUnits, parseUnits } from 'viem';
 import { type EstimationStep } from '@/types.ts';
 import { simulateBundleRpc, type SimulateBundleResult } from '@/lib/api/tenderly.ts';
 import { simulationBundleTokensExtractor, getReceiveAmountFromSimulationBundle, getGasUsedFromSimulationBundle } from '@/lib/api/tenderly-utils.ts';
 import { getMarkets, getAssetsPrices, getAssetsMetadata, prepareMarketSwapTx, type PendleMarketData } from '@/lib/api/pendle.ts';
+import { getPendleSyUnderlyingAsset } from '@/lib/api/pendle-web3.ts';
 import { pendlePriceExtractor, pendleMetadataExtractor, getContractAddressWithoutChain } from '@/lib/api/pendle-utils.ts';
 import { getWalletTokenBalances, type Erc20Value, type EvmErc20TokenBalanceWithPrice } from '@/lib/api/moralis.ts';
 import { balancePriceTokensExtractor, balancePriceTokensFormatter } from '@/lib/api/moralis-utils.ts';
@@ -43,7 +44,6 @@ const {
     data: _balance,
     status: balanceStatus,
     error: balanceError,
-    execute: fetchBalance,
 } = useAsyncAction(() => {
     if (!walletAddress.value) {
         return Promise.resolve([]);
@@ -77,8 +77,26 @@ const spendTokenValue = computed(() => {
 const selectedMarketPt = computed(() => {
     return getContractAddressWithoutChain(selectedMarket.value?.pt)
 });
+const selectedMarketSy = computed(() => {
+    return getContractAddressWithoutChain(selectedMarket.value?.sy)
+});
 const selectedMarketUnderlying = computed(() => {
     return getContractAddressWithoutChain(selectedMarket.value?.underlyingAsset)
+});
+
+const {
+    data: syUnderlyingInfo,
+    status: syUnderlyingInfoStatus,
+    error: syUnderlyingInfoError,
+    ensure: syUnderlyingInfoEnsure,
+} = useAsyncAction(() => {
+    if (!selectedMarketSy.value) {
+        return Promise.resolve(undefined);
+    }
+    return getPendleSyUnderlyingAsset(selectedMarketSy.value);
+}, {
+    watch: selectedMarketSy,
+    // immediate: true,
 });
 
 const isLoading = computed(() => {
@@ -131,18 +149,28 @@ async function handleSubmit() {
     if (!selectedMarketUnderlying.value) {
         return;
     }
+    await syUnderlyingInfoEnsure();
+    if (!syUnderlyingInfo.value) {
+        return;
+    }
+
+    // for example, PT-sUSDe will have sUSDe as underlying asset, but amount will be equal to SY-sUSDe's underlying USDe
+    let underlyingAmount = simulationSteps.value[0].receive.value;
+    if (syUnderlyingInfo.value.contractAddress !== selectedMarketUnderlying.value) {
+        underlyingAmount = underlyingAmount * BigInt(10 ** syUnderlyingInfo.value.decimals) / syUnderlyingInfo.value.exchangeRate;
+    }
     simulationSteps.value[1] = {
         name: 'Redeem matured PT into underlying',
         gas: 300_000,
-        receive: await prepareToken(selectedMarketUnderlying.value, simulationSteps.value[0].receive.value),
+        receive: await prepareToken(selectedMarketUnderlying.value, underlyingAmount),
     };
 
     // STEP #3
     const quote = await extractTokens(getSwapQuote({
         fromAddress: walletAddress.value,
-        fromToken: selectedMarketUnderlying.value,
+        fromToken: simulationSteps.value[1].receive.contractAddress,
         toToken: tokenIn,
-        fromAmount: simulationSteps.value[0].receive.value.toString(),
+        fromAmount: simulationSteps.value[1].receive.value.toString(),
     }), getSwapQuoteTokensExtractor)
     console.log('quote', quote);
 

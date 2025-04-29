@@ -2,7 +2,7 @@ import { createPublicClient, http, fallback, erc20Abi } from 'viem';
 import { mainnet } from 'viem/chains';
 import type { Hex, Address } from 'viem';
 
-const client = createPublicClient({
+export const client = createPublicClient({
     chain: mainnet,
     // chain: {
     //     ...mainnet,
@@ -18,6 +18,11 @@ const client = createPublicClient({
         http('https://0xrpc.io/eth'), // anonymous provider
         // http('https://cloudflare-eth.com'), down
     ]),
+    // batch: {
+    //     multicall: {
+    //         wait: 20,
+    //     },
+    // },
 });
 
 export function getTokenInfo(tokenAddress: Address) {
