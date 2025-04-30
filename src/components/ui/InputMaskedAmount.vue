@@ -19,7 +19,7 @@ const imaskAmount: FactoryArg = {
     mapToRadix: [',', 'ю', 'Ю', 'б', 'Б'], // symbols to process as radix
 };
 
-interface Props {
+type Props = {
     modelValue: string | number;
     scale?: number;
     isPercent?: boolean;
@@ -63,15 +63,12 @@ const imaskOptions = computed<FactoryArg>(() => {
     }
 });
 
-watch(
-    () => props.modelValue,
-    (newVal) => {
-        // typed value has to be updated if prop value changed programmatically
-        if (newVal !== maskedValue.value) {
-            updateMaskState(newVal);
-        }
-    },
-);
+watch(() => props.modelValue, (newVal) => {
+    // typed value has to be updated if prop value changed programmatically
+    if (newVal !== maskedValue.value) {
+        updateMaskState(newVal);
+    }
+});
 
 onMounted(() => {
     updateMaskState(props.modelValue);

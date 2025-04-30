@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 import stripZeros from 'pretty-num/src/strip-zeros.js';
 import { pretty, prettyRound } from '@/utils/pretty-num.js';
 
-interface Props {
+type Props = {
     value: string | number;
     maxValue?: string | number;
     watchMaxValue?: boolean;
@@ -32,34 +32,28 @@ const isMaxValueRounded = computed(() => {
     return isMaxValueDefined.value && props.maxValue!.toString() !== prettyFn(props.maxValue!).replace(/\s/g, '');
 });
 
-watch(
-    () => props.value,
-    (newVal) => {
-        if (!(Number(props.value) > 0)) {
-            isUseMax.value = false;
-            return;
-        }
-        if (!isMaxValueDefined.value) {
-            isUseMax.value = false;
-            return;
-        }
-        if (props.value.toString() !== props.maxValue?.toString()) {
-            isUseMax.value = false;
-        }
-    },
-);
+watch(() => props.value, (newVal) => {
+    if (!(Number(props.value) > 0)) {
+        isUseMax.value = false;
+        return;
+    }
+    if (!isMaxValueDefined.value) {
+        isUseMax.value = false;
+        return;
+    }
+    if (props.value.toString() !== props.maxValue?.toString()) {
+        isUseMax.value = false;
+    }
+});
 
-watch(
-    () => props.maxValue,
-    (newVal) => {
-        if (!props.watchMaxValue) {
-            return;
-        }
-        if (isMaxValueDefined.value && isUseMax.value) {
-            useMax();
-        }
-    },
-);
+watch(() => props.maxValue, (newVal) => {
+    if (!props.watchMaxValue) {
+        return;
+    }
+    if (isMaxValueDefined.value && isUseMax.value) {
+        useMax();
+    }
+});
 
 watch(isUseMax, (newVal) => {
     emit('update:is-use-max', newVal);
