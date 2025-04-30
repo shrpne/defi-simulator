@@ -17,7 +17,6 @@ import { useOnboard } from '@web3-onboard/vue';
 import useAsyncAction from '@/composables/use-async-action.ts';
 import useTokens, { type TokenValue } from '@/composables/use-tokens.ts';
 
-import Select from 'primevue/select';
 import FieldCoin from '@/components/ui/FieldCoin.vue';
 import UiToken from '@/components/ui/Token.vue';
 import ProtocolEstimationResult from '@/components/ProtocolEstimationResult.vue';
@@ -260,7 +259,7 @@ const formatExpiry = (expiry: string) => {
                     v-model:coin="selectedToken"
                     v-model:amount="selectedAmount"
                     :options="balance"
-                    :get-display-value="(val) => val?.contractAddress || ''"
+                    :get-display-value="(val) => val.contractAddress"
                     label="You Pay"
                     placeholder="0.00"
                 >
@@ -285,16 +284,19 @@ const formatExpiry = (expiry: string) => {
                 <label class="block text-sm font-medium  mb-2"
                 >You Enter</label
                 >
-                <Select
-                    v-model="selectedMarket"
+                <FieldCoin
+                    v-model:coin="selectedMarket"
+                    :amount="false"
                     :options="markets"
-                    optionLabel="name"
+                    :get-display-value="(val) => val.name"
                     placeholder="Select a market"
+                    label="You Enter"
                     class="w-full"
                 >
                     <template #value="slotProps: { value: PendleMarketData, placeholder: string }">
                         <UiToken
                             v-if="slotProps.value"
+                            class="grow"
                             :token="{symbol: slotProps.value.name}"
                             :text="formatExpiry(slotProps.value.expiry)"
                         />
@@ -302,12 +304,12 @@ const formatExpiry = (expiry: string) => {
                     </template>
                     <template #option="slotProps: { option: PendleMarketData }">
                         <UiToken
-                            class="p-2"
+                            class="p-2 grow"
                             :token="{symbol: slotProps.option.name}"
                             :text="formatExpiry(slotProps.option.expiry)"
                         />
                     </template>
-                </Select>
+                </FieldCoin>
             </div>
 
             <!-- Submit Button -->

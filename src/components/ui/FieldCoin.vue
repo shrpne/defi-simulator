@@ -142,11 +142,10 @@ export default {
                 />
             </button>
         </div>
-        <div class="h-field__aside" :class="{ 'is-error': v$amount.$error }">
+        <div v-if="amount !== false" class="h-field__aside" :class="{ 'is-error': v$amount.$error }">
             <div class="h-field__aside-caption">
                 <slot name="aside-caption">
                     <FieldCombinedUseMax
-                        v-if="amount !== false"
                         v-bind="attrs.input"
                         :value="amount"
                         :max-value="maxValue"
@@ -158,7 +157,6 @@ export default {
                 </slot>
             </div>
             <InputMaskedAmount
-                v-if="amount !== false"
                 class="h-field__input h-field__aside-input"
                 v-bind="attrs.input"
                 :placeholder="attrs.input.placeholder || (isDecimal ? '0.00' : '0')"

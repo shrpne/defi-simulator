@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@lifi/sdk": "^3.6.8",
-    "@primevue/themes": "^4.3.3",
     "@web3-onboard/injected-wallets": "^2.11.3",
     "@web3-onboard/vue": "^2.10.0",
     "axios": "^1.8.4",
@@ -28,8 +27,6 @@
     "es-toolkit": "^1.36.0",
     "moralis": "^2.27.2",
     "pretty-num": "^0.6.2",
-    "primevue": "^4.3.3",
-    "reka-ui": "^2.2.0",
     "vue": "^3.5.13",
     "vue-imask": "^7.6.1"
   },
