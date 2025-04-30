@@ -47,10 +47,6 @@ export default {
             type: [String, Number],
             default: undefined,
         },
-        disableMaxValueWatch: {
-            type: Boolean,
-            default: false,
-        },
         isEstimation: {
             type: Boolean,
             default: false,
@@ -149,7 +145,6 @@ export default {
                         v-bind="attrs.input"
                         :value="amount"
                         :max-value="maxValue"
-                        :disable-max-value-watch="disableMaxValueWatch"
                         :is-decimal="isDecimal"
                         @update:value="$emit('update:amount', $event)"
                         @update:is-use-max="handleUseMax($event)"

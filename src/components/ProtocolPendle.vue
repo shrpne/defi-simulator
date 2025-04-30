@@ -260,6 +260,7 @@ const formatExpiry = (expiry: string) => {
                     v-model:amount="selectedAmount"
                     :options="balance"
                     :get-display-value="(val) => val.contractAddress"
+                    :max-value="selectedToken?.amount"
                     label="You Pay"
                     placeholder="0.00"
                 >
