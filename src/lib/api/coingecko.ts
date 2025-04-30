@@ -3,7 +3,7 @@ import axios from 'axios';
 import { getDefaultAdapter } from './utils/axios-default-adapter.js';
 import addToCamelInterceptor from './utils/axios-to-camel.js';
 import type { CoinGeckoCoinsContractAddress, CoinGeckoSimpleTokenPrice, CoinGeckoCoinsDataBase } from './coingecko-models.d.ts';
-import { parseCoinGeckoCoin } from './coingecko-utils.ts';}
+import { parseCoinGeckoCoin } from './coingecko-utils.ts';
 import { mapValues } from '@/utils/structs.ts';
 import type {TokenInfo} from '@/types.ts';
 
