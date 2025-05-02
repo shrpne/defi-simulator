@@ -1,118 +1,115 @@
-<script>
+<script setup lang="ts" generic="Option extends string|object">
+import { ref, computed, useAttrs } from 'vue';
 import InputMaskedAmount from '@/components/ui/InputMaskedAmount.vue';
 import FieldCombinedUseMax from '@/components/ui/FieldCombinedUseMax.vue';
 import FieldCombinedBaseDropdown from '@/components/ui/FieldCombinedBaseDropdown.vue';
 
-export default {
-    components: {
-        InputMaskedAmount,
-        FieldCombinedUseMax,
-        FieldCombinedBaseDropdown,
-    },
+defineOptions({
     inheritAttrs: false,
-    props: {
-        coin: {
-            type: String,
-            default: '',
-        },
-        v$coin: {
-            type: Object,
-            default: () => {
-                return {$touch: () => {}};
-            },
-        },
-        amount: {
-            type: [Number, String, Boolean],
-            default: '',
-        },
-        v$amount: {
-            type: Object,
-            default: () => {
-                return {$touch: () => {}};
-            },
-        },
-        /**
-         * Flat array or array of balance items
-         * @type Array
-         */
-        options: {
-            type: Array,
-            default: () => [],
-        },
-        getDisplayValue: {
-            type: Function,
-            required: false,
-        },
-        maxValue: {
-            type: [String, Number],
-            default: undefined,
-        },
-        isEstimation: {
-            type: Boolean,
-            default: false,
-        },
-        isDecimal: {
-            type: Boolean,
-            default: true,
-        },
-        label: {
-            type: String,
-            default: '',
-        },
-    },
-    emits: [
-        'update:coin',
-        'update:amount',
-        'update:is-use-max',
-        'use-max',
-    ],
-    data() {
-        return {
-            isSelectVisible: false,
-        };
-    },
-    computed: {
-        // input attrs will go to input and other attrs will go to root
-        attrs() {
-            const {
-                // FieldCombinedBaseAmount > InputMaskedAmount
-                isPercent, ['is-percent']: isPercentSnake, scale,
-                // FieldCombinedBaseAmount > InputMaskedAmount > input
-                placeholder, type, inputmode,
-                // FieldCombined
-                ...other
-            } = this.$attrs;
+});
 
-            return {
-                input: {isPercent: isPercent || isPercentSnake, scale, placeholder, type, inputmode},
-                other,
-            };
+type Props = {
+    coin?: Option;
+    v$coin?: {
+        $touch: () => void;
+        $error: boolean;
+    };
+    amount?: number | string | false;
+    v$amount?: {
+        $touch: () => void;
+        $error: boolean;
+    };
+    options?: Array<Option>;
+    getSuggestionValue?: (value: Option) => string;
+    getSuggestionDisplay?: (value: Option) => string;
+    maxValue?: string | number;
+    isEstimation?: boolean;
+    isDecimal?: boolean;
+    label?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    coin: undefined,
+    'v$coin': () => ({
+        $touch: () => {},
+        $error: false,
+    }),
+    amount: '',
+    'v$amount': () => ({
+        $touch: () => {},
+        $error: false,
+    }),
+    options: () => [],
+    getSuggestionValue: undefined,
+    getSuggestionDisplay: undefined,
+    maxValue: undefined,
+    isEstimation: false,
+    isDecimal: true,
+    label: '',
+});
+
+const emit = defineEmits<{
+    'update:coin': [value: Option];
+    'update:amount': [value: string | number];
+    'update:is-use-max': [value: boolean];
+    'use-max': [];
+}>();
+
+
+const isSelectVisible = ref(false);
+
+defineExpose({
+    isSelectVisible,
+});
+
+// input attrs will go to input and other attrs will go to root
+const _attrs = useAttrs();
+const attrs = computed(() => {
+    const {
+        // FieldCombinedBaseAmount > InputMaskedAmount
+        isPercent, ['is-percent']: isPercentSnake, scale,
+        // FieldCombinedBaseAmount > InputMaskedAmount > input
+        placeholder, type, inputmode,
+        // FieldCombined
+        ...other
+    } = _attrs;
+
+    return {
+        input: {
+            isPercent: (isPercent || isPercentSnake) as boolean | undefined,
+            scale: scale as number | undefined,
+            placeholder,
+            type,
+            inputmode,
         },
-        isSelectDisabled() {
-            if (this.options.length === 0) {
-                return true;
-            }
-            // 0 and >1 are OK (enabled)
-            return this.options.length === 1;
-        },
-    },
-    methods: {
-        openDropdown() {
-            if (this.isSelectDisabled) {
-                return;
-            }
-            this.isSelectVisible = true;
-        },
-        handleSelect(coin) {
-            this.$emit('update:coin', coin);
-        },
-        handleUseMax(value) {
-            this.$emit('update:is-use-max', value);
-            if (value) {
-                this.$emit('use-max');
-            }
-        },
-    },
+        other,
+    };
+});
+
+const isSelectDisabled = computed(() => {
+    if (props.options.length === 0) {
+        return true;
+    }
+    // 0 and >1 are OK (enabled)
+    return props.options.length === 1;
+});
+
+const openDropdown = () => {
+    if (isSelectDisabled.value) {
+        return;
+    }
+    isSelectVisible.value = true;
+};
+
+const handleSelect = (coin: Option) => {
+    emit('update:coin', coin);
+};
+
+const handleUseMax = (value: boolean) => {
+    emit('update:is-use-max', value);
+    if (value) {
+        emit('use-max');
+    }
 };
 </script>
 
@@ -121,24 +118,33 @@ export default {
         <!-- @TODO handle blur (amount blur fires and coin blur not) (maybe not fire blur at all?)-->
         <div class="h-field__content">
             <div class="h-field__title">{{ label }}</div>
-            <button class="h-field__select-button u-semantic-button" type="button" @click="openDropdown()" :disabled="isSelectDisabled">
+            <button
+                class="h-field__select-button u-semantic-button"
+                type="button"
+                @click="openDropdown()"
+                :disabled="isSelectDisabled"
+            >
                 <slot name="value" :value="coin" :placeholder="'Select coin'">
-                    {{ coin }}
+                    {{ coin || 'Select coin' }}
                 </slot>
                 <!--<img class="h-field__select-icon" :src="iconUrl" width="24" height="24" alt="" role="presentation" v-if="coin" />-->
                 <!--<div class="h-field__select-value">{{ displayValue || 'Select coin' }}</div>-->
                 <img
+                    v-if="!isSelectDisabled"
                     class="h-field__select-icon-arrow"
                     src="@/assets/img/icon-dropdown.svg"
                     alt=""
                     role="presentation"
                     width="24"
                     height="24"
-                    v-if="!isSelectDisabled"
                 />
             </button>
         </div>
-        <div v-if="amount !== false" class="h-field__aside" :class="{ 'is-error': v$amount.$error }">
+        <div
+            v-if="amount !== false"
+            class="h-field__aside"
+            :class="{ 'is-error': v$amount.$error }"
+        >
             <div class="h-field__aside-caption">
                 <slot name="aside-caption">
                     <FieldCombinedUseMax
@@ -162,10 +168,10 @@ export default {
         </div>
 
         <FieldCombinedBaseDropdown
-            ref="coinDropdown"
             v-model:is-open="isSelectVisible"
             :options="options"
-            :getDisplayValue="getDisplayValue"
+            :getSuggestionValue="getSuggestionValue"
+            :getSuggestionDisplay="getSuggestionDisplay"
             @select="handleSelect($event)"
         >
             <template #option="{option}">

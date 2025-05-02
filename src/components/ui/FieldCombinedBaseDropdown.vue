@@ -1,5 +1,5 @@
-<script setup lang="ts" generic="Option">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+<script setup lang="ts" generic="Option extends string | object">
+import { ref, computed, onMounted, onUnmounted, watch, nextTick, useTemplateRef } from 'vue';
 
 const DEFAULT_MAX_OPTIONS = 6;
 
@@ -9,31 +9,34 @@ defineOptions({
 
 // Props definition
 type Props = {
-    isOpen: boolean,
-    options?: Array<Option>,
-    maxOptions?: number,
-    filter?: (item: Option, query: string) => boolean,
-    getDisplayValue?: (option: Option) => string,
-    placeholder?: string,
-}
+    isOpen: boolean;
+    options?: Array<Option>;
+    maxOptions?: number;
+    filter?: (item: Option, query: string) => boolean;
+    getSuggestionValue?: (option: Option) => string;
+    getSuggestionDisplay?: (option: Option) => string;
+    placeholder?: string;
+};
 
 const props = withDefaults(defineProps<Props>(), {
     options: () => [],
-    maxOptions: DEFAULT_MAX_OPTIONS
+    maxOptions: DEFAULT_MAX_OPTIONS,
+    getSuggestionValue: (val: Option) => val.toString(),
 });
 
 // Emits
 const emit = defineEmits<{
-    'update:isOpen': [value: boolean]
-    'select': [option: Option]
+    'update:isOpen': [value: boolean];
+    select: [option: Option];
 }>();
 
 // Refs
 const inputValue = ref('');
 const disableOutsideClick = ref(false);
-const focusedIndex = ref(0);
+const focusedIndex = ref(-1);
 const suggestionPanel = ref<HTMLElement>();
-const input = ref<HTMLElement>();
+const inputRef = ref<HTMLElement>();
+const optionRef = useTemplateRef('optionRef');
 
 // Computed
 const optionsFiltered = computed(() => {
@@ -55,20 +58,23 @@ const optionsFiltered = computed(() => {
 });
 
 // Watch effects
-watch(() => props.isOpen, (newVal) => {
-    if (newVal) {
-        setTimeout(() => {
-            // depends on if inputRef is VueComponent or HtmlElement
-            const inputEl = input.value?.$el || input.value;
-            inputEl?.focus();
-        }, 50);
-        // prevent immediate close after opening
-        disableOutsideClick.value = true;
-        setTimeout(() => {
-            disableOutsideClick.value = false;
-        }, 500);
-    }
-});
+watch(
+    () => props.isOpen,
+    (newVal) => {
+        if (newVal) {
+            nextTick(() => {
+                // depends on if inputRef is VueComponent or HtmlElement
+                const inputEl = /*inputRef.value?.$el ||*/ inputRef.value;
+                inputEl?.focus();
+            });
+            // prevent immediate close after opening
+            disableOutsideClick.value = true;
+            setTimeout(() => {
+                disableOutsideClick.value = false;
+            }, 300);
+        }
+    },
+);
 
 // Lifecycle hooks
 onMounted(() => {
@@ -89,12 +95,17 @@ function suggestionFilterDefault(item: Option, query: string) {
         return true;
     }
     query = query.toLowerCase();
-    const value = props.getDisplayValue!(item).toLowerCase();
+    const value = props.getSuggestionValue(item).toLowerCase();
+    const display = props.getSuggestionDisplay?.(item).toLowerCase() || '';
     // keep only values started with the query (e.g., remove "WALLET" for "LET" query)
-    return value.indexOf(query) === 0;
+    return value.indexOf(query) === 0 || display.indexOf(query) === 0;
 }
 
 function handleOptionClick(option: Option) {
+    // maybe fired twice (e.g., enter fires onEnter and onClick) so checking isOpen
+    if (!props.isOpen) {
+        return;
+    }
     emit('select', option);
     close();
 }
@@ -125,7 +136,8 @@ function handleEscape(e: KeyboardEvent) {
 function close() {
     emit('update:isOpen', false);
     inputValue.value = '';
-    focusedIndex.value = 0;
+    // onOpen focuses input and onFocus sets focusedIndex to -1
+    // focusedIndex.value = -1;
 }
 
 function handleKeyNavigation(e: KeyboardEvent) {
@@ -136,28 +148,47 @@ function handleKeyNavigation(e: KeyboardEvent) {
     // Arrow down
     if (e.code === 'ArrowDown' || e.keyCode === 40) {
         e.preventDefault();
-        focusedIndex.value = (focusedIndex.value + 1) % optionsFiltered.value.length;
+        focusedIndex.value = Math.min(focusedIndex.value + 1, optionsFiltered.value.length - 1);
     }
     // Arrow up
     else if (e.code === 'ArrowUp' || e.keyCode === 38) {
         e.preventDefault();
-        focusedIndex.value = (focusedIndex.value - 1 + optionsFiltered.value.length) % optionsFiltered.value.length;
+        focusedIndex.value = Math.max(focusedIndex.value - 1, -1);
     }
     // Enter key is handled in the input element
+}
+
+watch(focusedIndex, (newVal) => {
+    if (newVal === -1) {
+        inputRef.value?.focus();
+    } else {
+        optionRef.value?.[newVal].focus();
+    }
+})
+
+function handleEnter(e: KeyboardEvent) {
+    if (optionsFiltered.value.length > 0) {
+        handleOptionClick(optionsFiltered.value[focusedIndex.value]);
+    }
 }
 </script>
 
 <template>
-    <div class="h-field__dropdown" ref="suggestionPanel" v-show="isOpen">
+    <div
+        class="h-field__dropdown"
+        ref="suggestionPanel"
+        v-show="isOpen"
+        @keydown.enter="handleEnter"
+    >
         <div class="h-field__dropdown-field">
             <input
-                ref="input"
+                ref="inputRef"
                 class="h-field__dropdown-input"
                 type="text"
                 :placeholder="placeholder || 'Search…'"
                 v-bind="$attrs"
                 v-model="inputValue"
-                @keyup.enter="optionsFiltered.length > 0 && handleOptionClick(optionsFiltered[focusedIndex])"
+                @focus="focusedIndex = -1"
             />
             <img class="h-field__dropdown-field-icon" src="@/assets/img/icon-search.svg" alt="" role="presentation" />
         </div>
@@ -166,13 +197,15 @@ function handleKeyNavigation(e: KeyboardEvent) {
             <button
                 class="h-field__suggestion-item u-semantic-button"
                 type="button"
-                v-for="suggestion in optionsFiltered"
-                :key="props.getDisplayValue!(suggestion)"
+                ref="optionRef"
+                v-for="(suggestion, index) in optionsFiltered"
+                :key="props.getSuggestionValue(suggestion)"
                 :class="{ 'is-focused': focusedIndex === optionsFiltered.indexOf(suggestion) }"
                 @click="handleOptionClick(suggestion)"
+                @focus="focusedIndex = index"
             >
                 <slot name="option" :option="suggestion">
-                    <span>{{ props.getDisplayValue!(suggestion) }}</span>
+                    <span>{{ props.getSuggestionDisplay?.(suggestion) || props.getSuggestionValue(suggestion) }}</span>
                 </slot>
             </button>
         </div>

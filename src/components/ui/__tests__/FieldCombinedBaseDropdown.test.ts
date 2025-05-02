@@ -6,7 +6,7 @@ describe('FieldCombinedBaseDropdown.vue', () => {
     const defaultProps = {
         isOpen: false,
         options: ['option1', 'option2', 'option3'],
-        getDisplayValue: (value: string) => value,
+        getSuggestionValue: (value: string) => value,
     };
 
     it('renders when isOpen is true', () => {
@@ -92,15 +92,15 @@ describe('FieldCombinedBaseDropdown.vue', () => {
         });
 
         // Initial state
-        expect(wrapper.vm.focusedIndex).toBe(0);
+        expect(wrapper.vm.focusedIndex).toBe(-1);
 
         // Simulate arrow down
         await wrapper.trigger('keydown', { code: 'ArrowDown', keyCode: 40 });
-        expect(wrapper.vm.focusedIndex).toBe(1);
+        expect(wrapper.vm.focusedIndex).toBe(0);
 
         // Simulate arrow up
         await wrapper.trigger('keydown', { code: 'ArrowUp', keyCode: 38 });
-        expect(wrapper.vm.focusedIndex).toBe(0);
+        expect(wrapper.vm.focusedIndex).toBe(-1);
     });
 
     it('closes dropdown on escape key', async () => {
@@ -117,17 +117,46 @@ describe('FieldCombinedBaseDropdown.vue', () => {
     });
 
     it('handles custom display value function', () => {
-        const customGetDisplayValue = (value: string) => `Custom ${value}`;
+        const customGetSuggestionValue = (value: string) => `Custom ${value}`;
         const wrapper = mount(FieldCombinedBaseDropdown, {
             props: {
                 ...defaultProps,
                 isOpen: true,
-                getDisplayValue: customGetDisplayValue,
+                getSuggestionValue: customGetSuggestionValue,
             },
         });
 
         const items = wrapper.findAll('.h-field__suggestion-item');
         expect(items[0].text()).toBe('Custom option1');
+    });
+
+    it('should filter by display and by value', async () => {
+        const options = [
+            { id: 1, name: 'First Option', value: 'option1' },
+            { id: 2, name: 'Second Option', value: 'option2' },
+            { id: 3, name: 'Third Option', value: 'option3' },
+        ];
+
+        const wrapper = mount(FieldCombinedBaseDropdown, {
+            props: {
+                isOpen: true,
+                options: options,
+                getSuggestionValue: (option) => option.value,
+                getSuggestionDisplay: (option) => option.name,
+            },
+        });
+
+        // Test filtering by display name
+        await wrapper.find('input').setValue('First');
+        let items = wrapper.findAll('.h-field__suggestion-item');
+        expect(items).toHaveLength(1);
+        expect(items[0].text()).toBe('First Option');
+
+        // Test filtering by value
+        await wrapper.find('input').setValue('option2');
+        items = wrapper.findAll('.h-field__suggestion-item');
+        expect(items).toHaveLength(1);
+        expect(items[0].text()).toBe('Second Option');
     });
 
     it('handles slots correctly', () => {
@@ -155,8 +184,8 @@ describe('FieldCombinedBaseDropdown.vue', () => {
             attrs: {
                 'data-testid': 'test-id',
                 'aria-label': 'Custom Input',
-                'autocomplete': 'off'
-            }
+                autocomplete: 'off',
+            },
         });
 
         // Check that attributes are not on the root element
@@ -181,7 +210,7 @@ describe('FieldCombinedBaseDropdown.vue', () => {
             },
             attrs: {
                 onFocus,
-            }
+            },
         });
 
         const input = wrapper.find('input');
@@ -189,5 +218,98 @@ describe('FieldCombinedBaseDropdown.vue', () => {
 
         // Check that the focus event was emitted
         expect(onFocus).toHaveBeenCalled();
+    });
+
+    it('should shift focus on arrows (input, option0, option1, ..., optionN)', async () => {
+        const wrapper = mount(FieldCombinedBaseDropdown, {
+            attachTo: document.body,
+            props: {
+                ...defaultProps,
+                isOpen: true,
+            },
+        });
+
+        // Initial state - input should be focused
+        expect(wrapper.vm.focusedIndex).toBe(-1);
+
+        // Arrow down - focus first option
+        await wrapper.trigger('keydown', { code: 'ArrowDown', keyCode: 40 });
+        expect(wrapper.vm.focusedIndex).toBe(0);
+
+        // Arrow down again - focus second option
+        await wrapper.trigger('keydown', { code: 'ArrowDown', keyCode: 40 });
+        expect(wrapper.vm.focusedIndex).toBe(1);
+
+        // Arrow down again - focus third option
+        await wrapper.trigger('keydown', { code: 'ArrowDown', keyCode: 40 });
+        expect(wrapper.vm.focusedIndex).toBe(2);
+
+        // Arrow down at the end - should stay at last option
+        await wrapper.trigger('keydown', { code: 'ArrowDown', keyCode: 40 });
+        expect(wrapper.vm.focusedIndex).toBe(2); // Last index
+
+        // Arrow up - go back to previous option
+        await wrapper.trigger('keydown', { code: 'ArrowUp', keyCode: 38 });
+        expect(wrapper.vm.focusedIndex).toBe(1);
+
+        // Arrow up - go back to first option
+        await wrapper.trigger('keydown', { code: 'ArrowUp', keyCode: 38 });
+        expect(wrapper.vm.focusedIndex).toBe(0);
+
+        // Arrow up at the beginning - should go to input (-1)
+        await wrapper.trigger('keydown', { code: 'ArrowUp', keyCode: 38 });
+        expect(wrapper.vm.focusedIndex).toBe(-1);
+    });
+
+    it('should shift focusedIndex on tab, input on -1, options on 0..n', async () => {
+        const wrapper = mount(FieldCombinedBaseDropdown, {
+            attachTo: document.body,
+            props: {
+                ...defaultProps,
+                isOpen: true,
+            },
+        });
+
+        // Focus the input
+        await wrapper.find('input').trigger('focus');
+        expect(wrapper.vm.focusedIndex).toBe(-1);
+
+        // Focus the first option
+        const firstOption = wrapper.findAll('.h-field__suggestion-item')[0];
+        await firstOption.trigger('focus');
+        expect(wrapper.vm.focusedIndex).toBe(0);
+
+        // Focus the second option
+        const secondOption = wrapper.findAll('.h-field__suggestion-item')[1];
+        await secondOption.trigger('focus');
+        expect(wrapper.vm.focusedIndex).toBe(1);
+
+        // Focus back to input
+        await wrapper.find('input').trigger('focus');
+        expect(wrapper.vm.focusedIndex).toBe(-1);
+    });
+
+    it('should select on enter.keydown instead of enter.keyup to prevent instant closing when dropdown opened with enter', async () => {
+        const wrapper = mount(FieldCombinedBaseDropdown, {
+            attachTo: document.body,
+            props: {
+                ...defaultProps,
+                isOpen: true,
+            },
+        });
+
+        // Focus the first option
+        wrapper.vm.focusedIndex = 0;
+
+        // Trigger enter keydown on the dropdown
+        await wrapper.trigger('keydown.enter');
+
+        // Check that select was emitted with the correct option
+        expect(wrapper.emitted('select')).toBeTruthy();
+        expect(wrapper.emitted('select')![0]).toEqual(['option1']);
+
+        // Check that the dropdown was closed
+        expect(wrapper.emitted('update:isOpen')).toBeTruthy();
+        expect(wrapper.emitted('update:isOpen')![0]).toEqual([false]);
     });
 });
