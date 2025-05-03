@@ -2,8 +2,8 @@
     --h-field-title-height: 18px;
     --h-field-title-margin: 6px;
     --h-field-input-height: 24px;
-    --h-field-vertical-padding: 16px;
-    --h-field-horizontal-padding: 16px;
+    --h-field-vertical-padding: 12px;
+    --h-field-horizontal-padding: 14px;
 }
 
 /*.h-field-input-text() {
@@ -33,7 +33,7 @@
     --color-text-muted: var(--c-text-tint);
     background: var(--c-bg-secondary);
     color: var(--c-text);
-    border-radius: 20px;
+    border-radius: 8px;
 }
 .h-field--is-readonly {
     box-shadow: none;

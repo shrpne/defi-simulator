@@ -36,7 +36,7 @@ async function simulate() {
 
 <template>
     <div class="space-y-8">
-        <div class="flex items-center" v-for="protocol in PROTOCOL_LIST" :key="protocol.name">
+        <div class="flex items-center hidden" v-for="protocol in PROTOCOL_LIST" :key="protocol.name">
             <img role="img" :src="protocol.icon" class="shrink-0 h-9 w-9 rounded-full object-cover shadow-md" alt="" style="">
             <div class="ml-3 mr-2 space-y-1">
                 <p class="font-medium leading-none">

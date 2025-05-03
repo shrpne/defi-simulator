@@ -212,7 +212,7 @@ function getMarketLogo(market: PendleMarketData) {
 
 <template>
     <div>
-        <div class="mb-8">
+        <div class="mb-4">
             <h2 class="text-2xl font-bold">Enter Pendle Market</h2>
             <p class="mt-2 text-sm text-muted">
                 Select your token and the Pendle market you want to enter
@@ -235,9 +235,7 @@ function getMarketLogo(market: PendleMarketData) {
         <form v-else @submit.prevent="handleSubmit()" class="space-y-4">
             <!-- Token Selection -->
             <div class="relative">
-                <label class="block text-sm font-medium mb-2"
-                >You Pay</label
-                >
+                <!--<label class="block text-sm font-medium mb-2">You Pay</label>-->
                 <!--<Select
                     v-model="selectedToken"
                     :options="balance"
@@ -299,9 +297,7 @@ function getMarketLogo(market: PendleMarketData) {
 
             <!-- Market Selection -->
             <div class="relative">
-                <label class="block text-sm font-medium  mb-2"
-                >You Enter</label
-                >
+                <!--<label class="block text-sm font-medium  mb-2">You Enter</label>-->
                 <FieldCoin
                     v-model:coin="selectedMarket"
                     :amount="false"

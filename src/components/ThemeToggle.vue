@@ -54,7 +54,7 @@ function toggleTheme() {
 <template>
     <button
         @click="toggleTheme"
-        class="p-2 rounded-full hover:bg-stone-200 dark:hover:bg-slate-800 transition-colors"
+        class="btn btn-square"
     >
         <svg v-if="theme === 'dark'" class="h-5 w-5">
             <use xlink:href="/img/icon-theme-dark.svg#icon-dark"></use>
