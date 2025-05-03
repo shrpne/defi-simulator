@@ -5,6 +5,7 @@ import type {
     PendleGetAssetsResponse,
     PendleSdkControllerSwapParams,
     PendleSwapResponse,
+    PendleAssetsControllerAllAssetsData,
 } from './pendle-models.d.ts';
 export type { PendleMarketData } from './pendle-models.d.ts';
 
@@ -29,6 +30,12 @@ export function getAssetsMetadata() {
     return instance
         .get<PendleGetAssetsResponse>('v3/1/assets/all')
         .then((response) => response.data.assets);
+}
+
+export function getAssetsMetadataV1() {
+    return instance
+        .get<PendleAssetsControllerAllAssetsData>('v1/1/assets/all')
+        .then((response) => response.data);
 }
 
 // https://api-v2.pendle.finance/core/v1/sdk/1/markets/0xb451a36c8b6b2eac77ad0737ba732818143a0e25/swap?receiver=0x8Bcf390296E830B637D76c3Deaaf3d40a20e4B67&slippage=0.01&enableAggregator=true&tokenIn=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48&tokenOut=0x8a47b431a7d947c6a3ed6e42d501803615a97eaa&amountIn=1000000000

@@ -1,5 +1,5 @@
 import { type Address, isAddress } from 'viem';
-import { getAssetsPrices, getAssetsMetadata } from './pendle.ts';
+import { getAssetsPrices, getAssetsMetadata, getAssetsMetadataV1 } from './pendle.ts';
 import type { TokenInfo } from '@/composables/use-tokens.ts';
 
 export function pendlePriceExtractor(
@@ -21,6 +21,21 @@ export function pendleMetadataExtractor(
                 contractAddress: item.address as Address,
                 decimals: item.decimals,
                 symbol: item.symbol,
+            }
+        });
+}
+
+export function pendleMetadataV1Extractor(
+    response: Awaited<ReturnType<typeof getAssetsMetadataV1>>,
+): Array<TokenInfo> {
+    return response
+        .map((item) => {
+            return {
+                contractAddress: item.address as Address,
+                decimals: item.decimals,
+                symbol: item.symbol,
+                price: item.price?.usd || undefined,
+                logo: item.simpleIcon,
             }
         });
 }

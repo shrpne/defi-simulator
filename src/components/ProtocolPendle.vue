@@ -4,9 +4,9 @@ import { formatUnits, parseUnits } from 'viem';
 import { type EstimationStep } from '@/types.ts';
 import { simulateBundleRpc, type SimulateBundleResult } from '@/lib/api/tenderly.ts';
 import { simulationBundleTokensExtractor, getReceiveAmountFromSimulationBundle, getGasUsedFromSimulationBundle } from '@/lib/api/tenderly-utils.ts';
-import { getMarkets, getAssetsPrices, getAssetsMetadata, prepareMarketSwapTx, type PendleMarketData } from '@/lib/api/pendle.ts';
+import { getMarkets, getAssetsPrices, getAssetsMetadata, getAssetsMetadataV1, prepareMarketSwapTx, type PendleMarketData } from '@/lib/api/pendle.ts';
 import { getPendleSyUnderlyingAsset } from '@/lib/api/pendle-web3.ts';
-import { pendlePriceExtractor, pendleMetadataExtractor, getContractAddressWithoutChain } from '@/lib/api/pendle-utils.ts';
+import { pendlePriceExtractor, pendleMetadataExtractor, pendleMetadataV1Extractor, getContractAddressWithoutChain } from '@/lib/api/pendle-utils.ts';
 import { getWalletTokenBalances, type Erc20Value, type EvmErc20TokenBalanceWithPrice } from '@/lib/api/moralis.ts';
 import { balancePriceTokensExtractor, balancePriceTokensFormatter } from '@/lib/api/moralis-utils.ts';
 import { getSwapQuote } from '@/lib/api/lifi.ts';
@@ -27,7 +27,10 @@ const { connectedWallet } = useOnboard();
 const { tokens, extractTokens, getTokenValue, prepareToken } = useTokens();
 
 extractTokens(getAssetsPrices(), pendlePriceExtractor);
-extractTokens(getAssetsMetadata(), pendleMetadataExtractor);
+// doesn't have icons
+// extractTokens(getAssetsMetadata(), pendleMetadataExtractor);
+// use legacy api instead to extract icons
+extractTokens(getAssetsMetadataV1(), pendleMetadataV1Extractor);
 
 const {
     data: markets,
@@ -197,6 +200,14 @@ const formatExpiry = (expiry: string) => {
 function formatPercent(value: number) {
     return `${pretty(value * 100)}%`;
 }
+
+function getMarketLogo(market: PendleMarketData) {
+    const assetAddress = getContractAddressWithoutChain(market.underlyingAsset);
+    if (!assetAddress) {
+        return undefined;
+    }
+    return tokens[assetAddress]?.logo;
+}
 </script>
 
 <template>
@@ -304,16 +315,26 @@ function formatPercent(value: number) {
                         <UiToken
                             v-if="slotProps.value"
                             class="grow"
-                            :token="{symbol: slotProps.value.name}"
+                            :token="{
+                                symbol: slotProps.value.name,
+                                amount: formatPercent(slotProps.value.details.impliedApy),
+                                logo: getMarketLogo(slotProps.value),
+                            }"
                             :text="formatExpiry(slotProps.value.expiry)"
+                            squared
                         />
                         <span v-else class="text-muted">Select a market</span>
                     </template>
                     <template #option="slotProps: { option: PendleMarketData }">
                         <UiToken
                             class="p-2 grow"
-                            :token="{symbol: slotProps.option.name, amount: formatPercent(slotProps.option.details.impliedApy)}"
+                            :token="{
+                                symbol: slotProps.option.name,
+                                amount: formatPercent(slotProps.option.details.impliedApy),
+                                logo: getMarketLogo(slotProps.option),
+                            }"
                             :text="formatExpiry(slotProps.option.expiry)"
+                            squared
                         />
                     </template>
                 </FieldCoin>

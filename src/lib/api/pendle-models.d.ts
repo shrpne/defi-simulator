@@ -67,7 +67,7 @@ export interface PendleMarketData {
    * market address
    * @example "0x386f90eb964a477498b528a39d9405e73ed4032b"
    */
-  address: string;
+  address: `0x${string}`;
   /**
    * market expiry date
    * @example "2024-03-28T00:00:00.000Z"
@@ -135,7 +135,7 @@ export interface PendleAssetData {
    * asset address
    * @example "0x5fe30ac5cb1abb0e44cdffb2916c254aeb368650"
    */
-  address: string;
+  address: `0x${string}`;
   /**
    * asset symbol
    * @example "PT-FRAXUSDC_CurveLP Convex-30MAR2023"
@@ -744,7 +744,7 @@ export interface PendleValuationResponse {
 export interface PendleAssetResponse {
   id: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
   symbol: string;
   decimals: number;
   /** @format date-time */
@@ -788,7 +788,7 @@ export interface PendleMarketExtendedInfoResponse {
 export interface PendleMarketBasicMetadataResponse {
   id: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
   symbol: string;
   /** @format date-time */
   expiry: string;
@@ -897,7 +897,7 @@ export interface PendleFeaturedMarketsResponseEntity {
 export interface PendleAssetBasicResponse {
   id: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
   symbol: string;
   decimals: number;
   /** @format date-time */
@@ -924,7 +924,7 @@ export interface PendleEstimatedDailyPoolRewardResponse {
 export interface PendleMarketResponse {
   id: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
   symbol: string;
   /** @format date-time */
   expiry: string;
@@ -1196,7 +1196,7 @@ export interface PendleVersionResponse {
 
 export interface PendleTokenInfoResponse {
   chainId: number;
-  address: string;
+  address: `0x${string}`;
   decimals: number;
   name: string;
   symbol: string;
@@ -1219,7 +1219,7 @@ export interface PendleUniswapTokenListResponse {
 export interface PendleSyBasicResponse {
   id: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
   symbol: string;
   decimals: number;
   /** @format date-time */
@@ -1260,7 +1260,7 @@ export interface PendleWhitelistedSysResponse {
 export interface PendleSyResponse {
   id: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
   symbol: string;
   decimals: number;
   /** @format date-time */
@@ -1292,7 +1292,7 @@ export interface PendleSyResponse {
 export interface PendlePoolResponse {
   id: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
   symbol: string;
   expiry: string;
   protocol?: string | null;
@@ -1493,7 +1493,7 @@ export interface PendlePriceOHLCVResponse {
 export interface PendleMarketBasicResponse {
   id: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
   symbol: string;
   /** @format date-time */
   expiry: string;
@@ -2223,7 +2223,7 @@ export interface PendleMarketsControllerMarketApyHistoryV2Params {
    */
   timestamp_end?: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendleMarketsControllerMarketApyHistoryV2Data =
@@ -2289,7 +2289,7 @@ export interface PendleMarketsControllerMarketDataV2Params {
   /** @format date-time */
   timestamp?: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendleMarketsControllerMarketDataV2Data = PendleMarketDataResponse;
@@ -2308,7 +2308,7 @@ export interface PendleMarketsControllerMarketHistoryV2Params {
    */
   timestamp_end?: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendleMarketsControllerMarketHistoryV2Data =
@@ -2328,7 +2328,7 @@ export interface PendleMarketsControllerMarketApyHistoryParams {
    */
   timestamp_end?: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendleMarketsControllerMarketApyHistoryData =
@@ -2348,7 +2348,7 @@ export interface PendleMarketsControllerMarketStateHistoryParams {
    */
   timestamp_end?: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendleMarketsControllerMarketStateHistoryData =
@@ -2368,7 +2368,7 @@ export interface PendleMarketsControllerMarketApyHistoryV3Params {
    */
   timestamp_end?: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendleMarketsControllerMarketApyHistoryV3Data =
@@ -2388,7 +2388,7 @@ export interface PendleMarketsControllerMarketApyHistory1DParams {
    */
   timestamp_end?: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendleMarketsControllerMarketApyHistory1DData =
@@ -2406,7 +2406,7 @@ export interface PendleMarketsControllerMarketImpliedApyChartParams {
    */
   timestamp_end?: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendleMarketsControllerMarketImpliedApyChartData =
@@ -2423,7 +2423,7 @@ export interface PendleMarketsControllerGetSwapAmountToChangeImpliedApyParams {
   /** Target implied apy */
   targetImpliedApy: number;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendleMarketsControllerGetSwapAmountToChangeImpliedApyData =
@@ -2459,7 +2459,7 @@ export interface PendleAssetsControllerAssetsParams {
   /** Use comma separated values to search by multiple values. Possible values are NATIVE, GENERIC, LP, IB, PENDLE_LP, SY, PT and YT */
   type?: string;
   /** Use comma separated values to search by multiple addresses */
-  address?: string;
+  address?: `0x${string}`;
   /** Search by address, name, symbol or protocol */
   q?: string;
   chainId: number;
@@ -2537,7 +2537,7 @@ export type PendleVePendleControllerPendleTokenSupplyData =
 export interface PendleVePendleControllerGetHistoricalVotesParams {
   /** @format date-time */
   timestamp?: string;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendleVePendleControllerGetHistoricalVotesData =
@@ -2580,7 +2580,7 @@ export interface PendlePricesControllerOhlcvV4Params {
    */
   timestamp_end?: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendlePricesControllerOhlcvV4Data = PendlePriceOHLCVCSVResponse;
@@ -2616,7 +2616,7 @@ export interface PendlePricesControllerVolumeByMarketParams {
    */
   type: "pt" | "yt";
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendlePricesControllerVolumeByMarketData =
@@ -2636,7 +2636,7 @@ export interface PendlePricesControllerNotionalVolumeByMarketParams {
    */
   timestamp_end?: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendlePricesControllerNotionalVolumeByMarketData =
@@ -2656,7 +2656,7 @@ export interface PendlePricesControllerOhlcvV2Params {
    */
   timestamp_end?: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendlePricesControllerOhlcvV2Data = PendlePriceOHLCVResponse;
@@ -2675,7 +2675,7 @@ export interface PendlePricesControllerOhlcvV3Params {
    */
   timestamp_end?: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendlePricesControllerOhlcvV3Data = PendlePriceOHLCVResponse;
@@ -2759,7 +2759,7 @@ export interface PendleTransactionsControllerTransactionsV5Params {
   /** Transaction action. Possible values are LONG_YIELD, SHORT_YIELD, ADD_LIQUIDITY, REMOVE_LIQUIDITY */
   action?: string;
   chainId: number;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendleTransactionsControllerTransactionsV5Data =
@@ -2802,7 +2802,7 @@ export interface PendleMerkleControllerGetRewardsByAddressParams {
    * @default 1
    */
   chainId?: number;
-  address: string;
+  address: `0x${string}`;
   campaign: "vependle" | "arbitrum-grant" | "multi-token" | "external-rewards";
 }
 
@@ -2820,7 +2820,7 @@ export interface PendleMerkleControllerGetProofByAddressParams {
    * @default 1
    */
   chainId?: number;
-  address: string;
+  address: `0x${string}`;
   campaign: "vependle" | "arbitrum-grant" | "multi-token" | "external-rewards";
 }
 
@@ -2833,7 +2833,7 @@ export interface PendleMerkleControllerGetProofByAddressV2Params {
    * @default false
    */
   generateVerifyData?: boolean;
-  address: string;
+  address: `0x${string}`;
 }
 
 export type PendleMerkleControllerGetProofByAddressV2Data =

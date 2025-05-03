@@ -5,6 +5,11 @@
  */
 export default function onCreateComponent(component) {
 
+    if (component.rawTypeData?.properties?.address?.type === 'string') {
+        // narrow down all addresses to Viem address type
+        component.rawTypeData.properties.address.type = 'hex';
+    }
+
     if (component.typeName === 'TransactionDto') {
         // narrow down to Viem
         component.rawTypeData.properties.to.type = 'hex';

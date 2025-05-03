@@ -6,6 +6,7 @@ import { type TokenValue } from '@/composables/use-tokens.ts';
 const props = defineProps<{
     token: Partial<TokenValue>,
     text?: string,
+    squared?: boolean,
 }>();
 
 const sub = computed(() => {
@@ -18,8 +19,13 @@ const sub = computed(() => {
 
 <template>
     <div class="flex items-center">
-        <img :src="props.token.logo" class="w-8.5 h-8.5 rounded-full mr-2" alt="">
-        <div>
+        <img
+            :src="props.token.logo"
+            class="w-8.5 h-8.5 mr-2"
+            :class="props.squared ? '' : 'rounded-full'"
+            alt=""
+        >
+        <div class="text-left">
             <div class="font-semibold leading-5">{{ props.token.symbol }}</div>
             <div class="text-sm text-gray-500 leading-4.5" v-if="props.text">{{ props.text }}</div>
         </div>
