@@ -1,5 +1,6 @@
 /* eslint-disable */
 /* tslint:disable */
+// @ts-nocheck
 /*
  * ---------------------------------------------------------------
  * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
@@ -8,6 +9,53 @@
  * ## SOURCE: https://github.com/acacode/swagger-typescript-api ##
  * ---------------------------------------------------------------
  */
+
+export interface PendlePtYtImpliedYieldChangeAmountResponse {
+  ptMovementUpUsd?: number;
+  ptMovementDownUsd?: number;
+  ytMovementUpUsd?: number;
+  ytMovementDownUsd?: number;
+}
+
+export interface PendleYieldRangeResponse {
+  min: number;
+  max: number;
+}
+
+export interface PendleMarketDetails {
+  /**
+   * market liquidity in USD
+   * @example 1234567.89
+   */
+  liquidity: number;
+  /**
+   * APY from Pendle rewards
+   * @example 0.456
+   */
+  pendleApy: number;
+  /**
+   * implied APY of market
+   * @example 0.123
+   */
+  impliedApy: number;
+  /**
+   * market fee rate
+   * @example 0.003
+   */
+  feeRate: number;
+  movement10Percent?: PendlePtYtImpliedYieldChangeAmountResponse;
+  yieldRange: PendleYieldRangeResponse;
+  /**
+   * APY including yield, swap fee and Pendle rewards without boosting
+   * @example 0.123
+   */
+  aggregatedApy: number;
+  /**
+   * APY when maximum boost is applies
+   * @example 0.123
+   */
+  maxBoostedApy: number;
+}
 
 export interface PendleMarketData {
   /**
@@ -26,31 +74,40 @@ export interface PendleMarketData {
    */
   expiry: string;
   /**
-   * market pt address
-   * @example "0xb87511364014c088e30f872efc4a00d7efb843ac"
+   * market pt id
+   * @example "1-0xb87511364014c088e30f872efc4a00d7efb843ac"
    */
   pt: string;
   /**
-   * market yt address
-   * @example "0xed97f94dd94255637a054098604e0201c442a3fd"
+   * market yt id
+   * @example "1-0xed97f94dd94255637a054098604e0201c442a3fd"
    */
   yt: string;
   /**
-   * market sy address
-   * @example "0xe05082b184a34668cd8a904d85fa815802bbb04c"
+   * market sy id
+   * @example "1-0xe05082b184a34668cd8a904d85fa815802bbb04c"
    */
   sy: string;
   /**
-   * market underlying asset address
-   * @example "0xa663b02cf0a4b149d2ad41910cb81e23e1c41c32"
+   * market underlying asset id
+   * @example "1-0xa663b02cf0a4b149d2ad41910cb81e23e1c41c32"
    */
   underlyingAsset: string;
+  /** Market details including liquidity, APY, fee rate, and yield range */
+  details: PendleMarketDetails;
+  /** Whether the market is new */
+  isNew: boolean;
+  /**
+   * Market deployed timestamp
+   * @format date-time
+   */
+  timestamp: string;
 }
 
 export interface PendleGetActiveMarketsResponse {
   /**
    * active market list
-   * @example [{"name":"crvUSD","address":"0x386f90eb964a477498b528a39d9405e73ed4032b","expiry":"2024-03-28T00:00:00.000Z","pt":"0xb87511364014c088e30f872efc4a00d7efb843ac","yt":"0xed97f94dd94255637a054098604e0201c442a3fd","sy":"0xe05082b184a34668cd8a904d85fa815802bbb04c","underlyingAsset":"0xb27d1729489d04473631f0afaca3c3a7389ac9f8"},{"name":"sFRAX","address":"0xf148a0b15712f5bfeefadb4e6ef9739239f88b07","expiry":"2024-03-28T00:00:00.000Z","pt":"0xbf44fbcc181e297e1532b72c6ca500fe150c5b9e","yt":"0xde364a895d4ec08c05a34f6883a8e41c15619ed8","sy":"0xb359f0a97ca269ae5574dc75be48b0e81efd1da2","underlyingAsset":"0xa663b02cf0a4b149d2ad41910cb81e23e1c41c32"}]
+   * @example [{"name":"crvUSD","address":"0x386f90eb964a477498b528a39d9405e73ed4032b","expiry":"2024-03-28T00:00:00.000Z","pt":"1-0xb87511364014c088e30f872efc4a00d7efb843ac","yt":"1-0xed97f94dd94255637a054098604e0201c442a3fd","sy":"1-0xe05082b184a34668cd8a904d85fa815802bbb04c","underlyingAsset":"1-0xb27d1729489d04473631f0afaca3c3a7389ac9f8","details":{"liquidity":1000000,"pendleApy":0.05,"impliedApy":0.05,"feeRate":0.001,"yieldRange":{"min":0.01,"max":0.02},"aggregatedApy":0.1,"maxBoostedApy":0.1},"isNew":true,"timestamp":"2025-03-18T00:00:00.000Z"},{"name":"USD0++","address":"0x64506968e80c9ed07bff60c8d9d57474effff2c9","expiry":"2025-01-30T00:00:00.000Z","pt":"1-0x61439b9575278054d69c9176d88fafaf8319e4b7","yt":"1-0x9697e1ef258b847275e1b32f8a57b3a7e2f8ec50","sy":"1-0x52453825c287ddef62d647ce51c0979d27c461f7","underlyingAsset":"1-0x35d8949372d46b7a3d5a56006ae77b215fc69bc0","details":{"liquidity":1000000,"pendleApy":0.05,"impliedApy":0.05,"feeRate":0.001,"yieldRange":{"min":0.01,"max":0.02},"aggregatedApy":0.1,"maxBoostedApy":0.1},"isNew":false,"timestamp":"2025-02-18T00:00:00.000Z"}]
    */
   markets: PendleMarketData[];
 }
@@ -58,7 +115,7 @@ export interface PendleGetActiveMarketsResponse {
 export interface PendleGetInactiveMarketsResponse {
   /**
    * inactive market list
-   * @example [{"name":"FRAX-USDC","address":"0x386f90eb964a477498b528a39d9405e73ed4032b","expiry":"2023-03-30T00:00:00.000Z","pt":"0x5fe30ac5cb1abb0e44cdffb2916c254aeb368650","yt":"0xc5cd692e9b4622ab8cdb57c83a0f99f874a169cd","sy":"0xd393d1ddd6b8811a86d925f5e14014282581bc04","underlyingAsset":"0x3175df0976dfa876431c2e9ee6bc45b65d3473cc"},{"name":"LOOKS","address":"0xf148a0b15712f5bfeefadb4e6ef9739239f88b07","expiry":"2023-03-30T00:00:00.000Z","pt":"0x293811f161fbfea8f417e222b226bb821548ba63","yt":"0xc20dc81e8844f8ff154a67003849cea8e951dedc","sy":"0x35c16314d6ee4753289e5cc15a5c5e1dd4ead345","underlyingAsset":"0xf4d2888d29d722226fafa5d9b24f9164c092421e"}]
+   * @example [{"name":"crvUSD","address":"0x386f90eb964a477498b528a39d9405e73ed4032b","expiry":"2024-03-28T00:00:00.000Z","pt":"1-0xb87511364014c088e30f872efc4a00d7efb843ac","yt":"1-0xed97f94dd94255637a054098604e0201c442a3fd","sy":"1-0xe05082b184a34668cd8a904d85fa815802bbb04c","underlyingAsset":"1-0xb27d1729489d04473631f0afaca3c3a7389ac9f8","details":{"liquidity":1000000,"pendleApy":0.05,"impliedApy":0.05,"feeRate":0.001,"yieldRange":{"min":0.01,"max":0.02},"aggregatedApy":0.1,"maxBoostedApy":0.1},"isNew":true,"timestamp":"2025-03-18T00:00:00.000Z"},{"name":"USD0++","address":"0x64506968e80c9ed07bff60c8d9d57474effff2c9","expiry":"2025-01-30T00:00:00.000Z","pt":"1-0x61439b9575278054d69c9176d88fafaf8319e4b7","yt":"1-0x9697e1ef258b847275e1b32f8a57b3a7e2f8ec50","sy":"1-0x52453825c287ddef62d647ce51c0979d27c461f7","underlyingAsset":"1-0x35d8949372d46b7a3d5a56006ae77b215fc69bc0","details":{"liquidity":1000000,"pendleApy":0.05,"impliedApy":0.05,"feeRate":0.001,"yieldRange":{"min":0.01,"max":0.02},"aggregatedApy":0.1,"maxBoostedApy":0.1},"isNew":false,"timestamp":"2025-02-18T00:00:00.000Z"}]
    */
   markets: PendleMarketData[];
 }
@@ -107,6 +164,12 @@ export interface PendleGetAssetsResponse {
 export interface PendleGetAssetPricesResponse {
   /** @example {"0x5fe30ac5cb1abb0e44cdffb2916c254aeb368650":0.9989673642973003,"0xd393d1ddd6b8811a86d925f5e14014282581bc04":1.001712} */
   prices: Record<string, number>;
+  /** Total number of assets */
+  total: number;
+  /** Number of assets got skipped */
+  skip: number;
+  /** Number of assets limited by the query */
+  limit?: number | null;
 }
 
 export interface PendleOrderFilledStatusResponse {
@@ -211,13 +274,13 @@ export interface PendleLimitOrderResponse {
   takingToken: string;
   /** LimitOrderStatus */
   status:
-    | 'FILLABLE'
-    | 'PARTIAL_FILLABLE'
-    | 'FAILED_TRANSFER_TOKEN'
-    | 'EMPTY_MAKER_BALANCE'
-    | 'CANCELLED'
-    | 'FULLY_FILLED'
-    | 'EXPIRED';
+    | "FILLABLE"
+    | "PARTIAL_FILLABLE"
+    | "FAILED_TRANSFER_TOKEN"
+    | "EMPTY_MAKER_BALANCE"
+    | "CANCELLED"
+    | "FULLY_FILLED"
+    | "EXPIRED";
 }
 
 export interface PendleLimitOrdersResponse {
@@ -378,6 +441,11 @@ export interface PendleTransactionDto {
   value?: string;
 }
 
+export interface PendleTokenAmountResponse {
+  token: string;
+  amount: string;
+}
+
 export interface PendleImpliedApy {
   before: number;
   after: number;
@@ -399,6 +467,7 @@ export interface PendleSwapResponse {
   contractCallParams: any[][];
   /** Transaction data */
   tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
   data: PendleSwapData;
 }
 
@@ -418,6 +487,7 @@ export interface PendleAddLiquidityResponse {
   contractCallParams: any[][];
   /** Transaction data */
   tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
   data: PendleAddLiquidityData;
 }
 
@@ -436,6 +506,7 @@ export interface PendleRemoveLiquidityResponse {
   contractCallParams: any[][];
   /** Transaction data */
   tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
   data: PendleRemoveLiquidityData;
 }
 
@@ -453,6 +524,7 @@ export interface PendleMintResponse {
   contractCallParams: any[][];
   /** Transaction data */
   tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
   data: PendleMintData;
 }
 
@@ -470,6 +542,7 @@ export interface PendleRedeemResponse {
   contractCallParams: any[][];
   /** Transaction data */
   tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
   data: PendleRedeemData;
 }
 
@@ -487,6 +560,7 @@ export interface PendleMintSyResponse {
   contractCallParams: any[][];
   /** Transaction data */
   tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
   data: PendleMintSyData;
 }
 
@@ -504,6 +578,7 @@ export interface PendleRedeemSyResponse {
   contractCallParams: any[][];
   /** Transaction data */
   tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
   data: PendleRedeemSyData;
 }
 
@@ -537,6 +612,7 @@ export interface PendleTransferLiquidityResponse {
   contractCallParams: any[][];
   /** Transaction data */
   tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
   data: PendleTransferLiquidityData;
   paramsBreakdown: PendleParamsBreakdown;
 }
@@ -555,6 +631,7 @@ export interface PendleRollOverPtResponse {
   contractCallParams: any[][];
   /** Transaction data */
   tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
   data: PendleRollOverPtData;
   paramsBreakdown: PendleParamsBreakdown;
 }
@@ -573,6 +650,7 @@ export interface PendleAddLiquidityDualResponse {
   contractCallParams: any[][];
   /** Transaction data */
   tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
   data: PendleAddLiquidityDualData;
 }
 
@@ -591,6 +669,7 @@ export interface PendleRemoveLiquidityDualResponse {
   contractCallParams: any[][];
   /** Transaction data */
   tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
   data: PendleRemoveLiquidityDualData;
 }
 
@@ -603,6 +682,51 @@ export interface PendleSdkResponse {
   contractCallParams: any[][];
   /** Transaction data */
   tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
+}
+
+export interface PendlePendleSwapInput {
+  token: string;
+  amount: string;
+}
+
+export interface PendlePendleSwapDto {
+  /** The address to receive the output of the action */
+  receiver: string;
+  inputs: PendlePendleSwapInput[];
+  tokenOut: string;
+  /** Max slippage accepted. A value from 0 to 1 (0.01 is 1%) */
+  slippage: number;
+}
+
+export interface PendlePendleSwapData {
+  amountOut: string;
+  priceImpact: number;
+}
+
+export interface PendlePendleSwapResponse {
+  /** Method name */
+  method: string;
+  /** Contract call parameters name */
+  contractCallParamsName: string[];
+  /** Contract call parameters */
+  contractCallParams: any[][];
+  /** Transaction data */
+  tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
+  data: PendlePendleSwapData;
+}
+
+export interface PendleRedeemInterestsAndRewardsResponse {
+  /** Method name */
+  method: string;
+  /** Contract call parameters name */
+  contractCallParamsName: string[];
+  /** Contract call parameters */
+  contractCallParams: any[][];
+  /** Transaction data */
+  tx: PendleTransactionDto;
+  tokenApprovals?: PendleTokenAmountResponse[];
 }
 
 export interface PendleMarketApyHistoriesCSVResponse {
@@ -641,18 +765,6 @@ export interface PendleAssetResponse {
   simpleSymbol: string;
   simpleIcon: string;
   proName: string;
-}
-
-export interface PendlePtYtImpliedYieldChangeAmountResponse {
-  ptMovementUpUsd?: number;
-  ptMovementDownUsd?: number;
-  ytMovementUpUsd?: number;
-  ytMovementDownUsd?: number;
-}
-
-export interface PendleYieldRangeResponse {
-  min: number;
-  max: number;
 }
 
 export interface PendleMarketExtendedInfoResponse {
@@ -930,6 +1042,7 @@ export interface PendleMarketDataResponse {
   totalSy: number;
   totalLp: number;
   totalActiveSupply: number;
+  assetPriceUsd: number;
 }
 
 export interface PendleMarketHistoryResponse {
@@ -1037,6 +1150,11 @@ export interface PendleMarketAssetsResponse {
   rewardTokens: PendleAssetResponse[];
   inputTokens: PendleAssetResponse[];
   outputTokens: PendleAssetResponse[];
+}
+
+export interface PendleSwapAmountToChangeApyResponse {
+  /** Bigint string of the amount required to swap in the market to change the implied apy to XXX */
+  amount: string;
 }
 
 export interface PendleMarketCategoryResponse {
@@ -1316,6 +1434,12 @@ export interface PendleAllMarketTotalFeesResponse {
   results: PendleMarketTotalFeesData[];
 }
 
+export interface PendleGetOngoingVotesResponse {
+  votes: PendleVoteResponse[];
+  totalPools: number;
+  totalVotes: number;
+}
+
 export interface PendlePriceOHLCVCSVResponse {
   total: number;
   currency: string;
@@ -1410,12 +1534,20 @@ export interface PendleTransactionsResponse {
   results: PendleTransactionResponse[];
 }
 
-export interface PendleNotional {
-  usd: number;
-  acc: number;
+export interface PendleTransactionsV4Response {
+  total: number;
+  limit: number;
+  skip: number;
+  results: string[];
+  /** Resume token for pagination. Use this to continue a previous query. Use this token in the next request. Can be undefined if the query is at the end of the results. */
+  resumeToken?: string;
 }
 
-export interface PendleTransactionV4Response {
+export interface PendleNotionalV5 {
+  pt: number;
+}
+
+export interface PendleTransactionV5Response {
   id: string;
   market: string;
   /** @format date-time */
@@ -1424,17 +1556,17 @@ export interface PendleTransactionV4Response {
   txHash: string;
   value: number;
   type: string;
-  origin: string;
   action: string;
-  impliedApy?: number;
-  notional?: PendleNotional;
+  txOrigin?: string;
+  impliedApy: number;
+  notional?: PendleNotionalV5;
 }
 
-export interface PendleTransactionsV4Response {
+export interface PendleTransactionsV5Response {
   total: number;
   limit: number;
   skip: number;
-  results: PendleTransactionV4Response[];
+  results: PendleTransactionV5Response[];
 }
 
 export interface PendleMetadataQueryDto {
@@ -1449,6 +1581,12 @@ export interface PendleMetadataResponse {
 export interface PendleMetadataValuesResponse {
   /** Values of given metadata keys in the same order with keys */
   values: (object | null)[];
+}
+
+export interface PendleGetMetadataByTemplateResponse {
+  keys: string[];
+  /** Values of given metadata keys in the same order with keys */
+  values: object[];
 }
 
 export interface PendleTvlAndTradingVolumeResponseEntity {
@@ -1482,6 +1620,29 @@ export interface PendleMerkleProofResponse {
 export interface PendleNotFoundResponse {
   message: string;
   statusCode: number;
+}
+
+export interface PendleTokenProof {
+  token: string;
+  proof: string[];
+  accruedAmount: string;
+  /** Calldata to verify the proof */
+  verifyCallData?: string;
+}
+
+export interface PendleMultiTokenMerkleProofResponse {
+  proof: PendleTokenProof[];
+  merkleRoot: string;
+  /** @format date-time */
+  updatedAt: string;
+  chainId: number;
+  distributorAddress: string;
+  campaignId: string;
+}
+
+export interface PendleMerkleProofV2Response {
+  total: number;
+  results: PendleMultiTokenMerkleProofResponse[];
 }
 
 export interface PendleSyTokenOutRouteResponse {
@@ -1518,24 +1679,125 @@ export interface PendleChainIdsResponse {
   chainIds: number[];
 }
 
+export interface PendlePosition {
+  /**
+   * Balance of the position
+   * @example "1000000000000000000"
+   */
+  balance: string;
+  /**
+   * Active balance of the position (for LP only)
+   * @example "1000000000000000000"
+   */
+  activeBalance?: string;
+  /**
+   * Valuation of the position in USD
+   * @example 10
+   */
+  valuation: number;
+}
+
+export interface PendleMarketPosition {
+  /**
+   * Unique identifier of the market
+   * @example "1-0xabc..."
+   */
+  marketId: string;
+  /** Principal token (PT) position */
+  pt: PendlePosition;
+  /** Yield token (YT) position */
+  yt: PendlePosition;
+  /** Liquidity provider (LP) token position */
+  lp: PendlePosition;
+}
+
+export interface PendleSyPosition {
+  /**
+   * Unique identifier of the market
+   * @example "1-0xabc"
+   */
+  syId: string;
+  /**
+   * Sy token (SY) balance in wei
+   * @example "1000000000000000000"
+   */
+  balance: string;
+}
+
+export interface PendleUserPositionsResponse {
+  /**
+   * Chain ID
+   * @example 1
+   */
+  chainId: number;
+  /**
+   * Total number of open positions
+   * @example 100
+   */
+  totalOpen: number;
+  /**
+   * Total number of closed positions
+   * @example 100
+   */
+  totalClosed: number;
+  /**
+   * Total number of SY positions
+   * @example 100
+   */
+  totalSy: number;
+  /** Array of user token positions */
+  openPositions: PendleMarketPosition[];
+  /** Array of closed user token positions */
+  closedPositions: PendleMarketPosition[];
+  /** Array of user SY positions */
+  syPositions: PendleSyPosition[];
+  /**
+   * Date time of the last update
+   * @format date-time
+   * @example "2021-01-01T00:00:00.000Z"
+   */
+  updatedAt: string;
+  /**
+   * Error message when there is something wrong
+   * @example "Error message"
+   */
+  errorMessage?: string;
+}
+
+export interface PendleUserPositionsCrossChainResponse {
+  /** Array of user positions */
+  positions: PendleUserPositionsResponse[];
+}
+
 export interface PendleTagDefinitionResponse {
   name: string;
   description: string;
 }
 
-export type PendleMarketsSimplifiedControllerGetActiveMarketsData = PendleGetActiveMarketsResponse;
+export type PendleMarketsSimplifiedControllerGetActiveMarketsData =
+  PendleGetActiveMarketsResponse;
 
 export type PendleMarketsSimplifiedControllerGetInactiveMarketsData =
   PendleGetInactiveMarketsResponse;
 
-export type PendleAssetsSimplifiedControllerGetAllAssetsData = PendleGetAssetsResponse;
+export type PendleAssetsSimplifiedControllerGetAllAssetsData =
+  PendleGetAssetsResponse;
 
 export interface PendleAssetsSimplifiedControllerGetAllAssetPricesByAddressesParams {
   /**
-   * Specify tokens to fetch price, leave blank to fetch all prices. Use comma separated values to search by multiple addresses. Upto 20 addresses allowed
+   * Specify tokens to fetch price, leave blank to fetch all prices. Use comma separated values to search by multiple addresses. Upto 20 addresses allowed. This will ignore skip and limit parameters
    * @example "0x5fe30ac5cb1abb0e44cdffb2916c254aeb368650,0xc5cd692e9b4622ab8cdb57c83a0f99f874a169cd"
    */
   addresses?: string;
+  /**
+   * Number of results to skip.
+   * @default 0
+   */
+  skip?: number;
+  /** Maximum number of results to return. */
+  limit?: number;
+  /** Use comma separated values to search by multiple values. Possible values are PENDLE_LP, SY, PT and YT */
+  type?: string;
   chainId: number;
 }
 
@@ -1549,7 +1811,7 @@ export interface PendleLimitOrdersControllerGetLimitOrdersParams {
    */
   order_by?: string;
   /**
-   * Maximum number of results to skip. The parameter is capped at 1000.
+   * Number of results to skip. The parameter is capped at 1000.
    * @default 0
    */
   skip?: number;
@@ -1575,22 +1837,23 @@ export interface PendleLimitOrdersControllerGetLimitOrdersParams {
   maxLnImpliedRate?: string;
 }
 
-export type PendleLimitOrdersControllerGetLimitOrdersData = PendleLimitOrdersResponse;
+export type PendleLimitOrdersControllerGetLimitOrdersData =
+  PendleLimitOrdersResponse;
 
 export interface PendleLimitOrdersControllerFetchMakersParams {
   chainId?: number;
   yt?: string;
   /** @default "sum_order_size" */
-  sortBy?: 'sum_order_size' | 'num_orders';
+  sortBy?: "sum_order_size" | "num_orders";
   /** @default "desc" */
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export type PendleLimitOrdersControllerFetchMakersData = PendleMakersResponse;
 
 export interface PendleLimitOrdersControllerGetMakerLimitOrderParams {
   /**
-   * Maximum number of results to skip. The parameter is capped at 1000.
+   * Number of results to skip. The parameter is capped at 1000.
    * @default 0
    */
   skip?: number;
@@ -1611,16 +1874,18 @@ export interface PendleLimitOrdersControllerGetMakerLimitOrderParams {
   isActive?: boolean;
 }
 
-export type PendleLimitOrdersControllerGetMakerLimitOrderData = PendleLimitOrdersResponse;
+export type PendleLimitOrdersControllerGetMakerLimitOrderData =
+  PendleLimitOrdersResponse;
 
-export type PendleLimitOrdersControllerCreateOrderData = PendleLimitOrderResponse;
+export type PendleLimitOrdersControllerCreateOrderData =
+  PendleLimitOrderResponse;
 
 export type PendleLimitOrdersControllerGenerateLimitOrderDataData =
   PendleGenerateLimitOrderDataResponse;
 
 export interface PendleLimitOrdersControllerGetTakerLimitOrdersParams {
   /**
-   * Maximum number of results to skip. The parameter is capped at 1000.
+   * Number of results to skip. The parameter is capped at 1000.
    * @default 0
    */
   skip?: number;
@@ -1635,15 +1900,17 @@ export interface PendleLimitOrdersControllerGetTakerLimitOrdersParams {
   yt: string;
   /** LimitOrderType { 0 : TOKEN_FOR_PT, 1 : PT_FOR_TOKEN, 2 : TOKEN_FOR_YT, 3 : YT_FOR_TOKEN } */
   type: 0 | 1 | 2 | 3;
-  sortBy?: 'Implied Rate';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "Implied Rate";
+  sortOrder?: "asc" | "desc";
 }
 
-export type PendleLimitOrdersControllerGetTakerLimitOrdersData = PendleLimitOrdersTakerResponse;
+export type PendleLimitOrdersControllerGetTakerLimitOrdersData =
+  PendleLimitOrdersTakerResponse;
 
 export type PendleSdkControllerGetMarketTokensData = PendleMarketTokensResponse;
 
-export type PendleSdkControllerGetMarketSpotSwappingPriceData = PendleGetSpotSwappingPriceResponse;
+export type PendleSdkControllerGetMarketSpotSwappingPriceData =
+  PendleGetSpotSwappingPriceResponse;
 
 export interface PendleSdkControllerSwapParams {
   /** The address to receive the output of the action */
@@ -1713,7 +1980,8 @@ export interface PendleSdkControllerRemoveLiquidityParams {
   market: string;
 }
 
-export type PendleSdkControllerRemoveLiquidityData = PendleRemoveLiquidityResponse;
+export type PendleSdkControllerRemoveLiquidityData =
+  PendleRemoveLiquidityResponse;
 
 export interface PendleSdkControllerMintParams {
   /** The address to receive the output of the action */
@@ -1815,7 +2083,8 @@ export interface PendleSdkControllerTransferLiquidityParams {
   market: string;
 }
 
-export type PendleSdkControllerTransferLiquidityData = PendleTransferLiquidityResponse;
+export type PendleSdkControllerTransferLiquidityData =
+  PendleTransferLiquidityResponse;
 
 export interface PendleSdkControllerRollOverPtParams {
   /** The address to receive the output of the action */
@@ -1844,7 +2113,8 @@ export interface PendleSdkControllerAddLiquidityDualParams {
   market: string;
 }
 
-export type PendleSdkControllerAddLiquidityDualData = PendleAddLiquidityDualResponse;
+export type PendleSdkControllerAddLiquidityDualData =
+  PendleAddLiquidityDualResponse;
 
 export interface PendleSdkControllerRemoveLiquidityDualParams {
   /** The address to receive the output of the action */
@@ -1858,7 +2128,8 @@ export interface PendleSdkControllerRemoveLiquidityDualParams {
   market: string;
 }
 
-export type PendleSdkControllerRemoveLiquidityDualData = PendleRemoveLiquidityDualResponse;
+export type PendleSdkControllerRemoveLiquidityDualData =
+  PendleRemoveLiquidityDualResponse;
 
 export interface PendleSdkControllerCancelSingleLimitOrderParams {
   /** User Address */
@@ -1900,9 +2171,47 @@ export interface PendleSdkControllerCancelAllLimitOrdersParams {
 
 export type PendleSdkControllerCancelAllLimitOrdersData = PendleSdkResponse;
 
+export type PendleSdkControllerPendleSwapData = PendlePendleSwapResponse;
+
+export interface PendleSdkControllerExitMarketParams {
+  /** The address to receive the output of the action */
+  receiver: string;
+  /** Max slippage accepted. A value from 0 to 1 (0.01 is 1%) */
+  slippage: number;
+  /**
+   * Enable swap aggregator to swap between tokens that cannot be natively converted from/to the underlying asset
+   * @default false
+   */
+  enableAggregator?: boolean;
+  ptAmount: string;
+  ytAmount: string;
+  lpAmount: string;
+  /** Address can be token / SY */
+  tokenOut: string;
+  chainId: number;
+  market: string;
+}
+
+export type PendleSdkControllerExitMarketData = any;
+
+export interface PendleSdkControllerRedeemInterestsAndRewardsParams {
+  /** The address to receive the output of the action */
+  receiver: string;
+  /** Use comma separated values to search by multiple addresses */
+  sys?: string;
+  /** Use comma separated values to search by multiple addresses */
+  yts?: string;
+  /** Use comma separated values to search by multiple addresses */
+  markets?: string;
+  chainId: number;
+}
+
+export type PendleSdkControllerRedeemInterestsAndRewardsData =
+  PendleRedeemInterestsAndRewardsResponse;
+
 export interface PendleMarketsControllerMarketApyHistoryV2Params {
   /** @default "hour" */
-  time_frame?: 'hour' | 'day' | 'week';
+  time_frame?: "hour" | "day" | "week";
   /**
    * Should be rounded up to time frame (in UTC)
    * @format date-time
@@ -1917,7 +2226,8 @@ export interface PendleMarketsControllerMarketApyHistoryV2Params {
   address: string;
 }
 
-export type PendleMarketsControllerMarketApyHistoryV2Data = PendleMarketApyHistoriesCSVResponse;
+export type PendleMarketsControllerMarketApyHistoryV2Data =
+  PendleMarketApyHistoriesCSVResponse;
 
 export interface PendleMarketsControllerMarketsParams {
   /**
@@ -1926,7 +2236,7 @@ export interface PendleMarketsControllerMarketsParams {
    */
   order_by?: string;
   /**
-   * Maximum number of results to skip. The parameter is capped at 300.
+   * Number of results to skip. The parameter is capped at 300.
    * @default 0
    */
   skip?: number;
@@ -1958,7 +2268,7 @@ export interface PendleMarketsControllerGetFeaturedMarketsParams {
    */
   order_by?: string;
   /**
-   * Maximum number of results to skip. The parameter is capped at 300.
+   * Number of results to skip. The parameter is capped at 300.
    * @default 0
    */
   skip?: number;
@@ -1970,7 +2280,8 @@ export interface PendleMarketsControllerGetFeaturedMarketsParams {
   chainId: number;
 }
 
-export type PendleMarketsControllerGetFeaturedMarketsData = PendleFeaturedMarketsResponseEntity;
+export type PendleMarketsControllerGetFeaturedMarketsData =
+  PendleFeaturedMarketsResponseEntity;
 
 export type PendleMarketsControllerMarketData = PendleMarketResponse;
 
@@ -1985,7 +2296,7 @@ export type PendleMarketsControllerMarketDataV2Data = PendleMarketDataResponse;
 
 export interface PendleMarketsControllerMarketHistoryV2Params {
   /** @default "hour" */
-  time_frame?: 'hour' | 'day' | 'week';
+  time_frame?: "hour" | "day" | "week";
   /**
    * Should be rounded up to time frame (in UTC)
    * @format date-time
@@ -2000,11 +2311,12 @@ export interface PendleMarketsControllerMarketHistoryV2Params {
   address: string;
 }
 
-export type PendleMarketsControllerMarketHistoryV2Data = PendleMarketHistoriesResponse;
+export type PendleMarketsControllerMarketHistoryV2Data =
+  PendleMarketHistoriesResponse;
 
 export interface PendleMarketsControllerMarketApyHistoryParams {
   /** @default "hour" */
-  time_frame?: 'hour' | 'day' | 'week';
+  time_frame?: "hour" | "day" | "week";
   /**
    * Should be rounded up to time frame (in UTC)
    * @format date-time
@@ -2019,11 +2331,12 @@ export interface PendleMarketsControllerMarketApyHistoryParams {
   address: string;
 }
 
-export type PendleMarketsControllerMarketApyHistoryData = PendleMarketApyHistoriesResponse;
+export type PendleMarketsControllerMarketApyHistoryData =
+  PendleMarketApyHistoriesResponse;
 
 export interface PendleMarketsControllerMarketStateHistoryParams {
   /** @default "hour" */
-  time_frame?: 'hour' | 'day' | 'week';
+  time_frame?: "hour" | "day" | "week";
   /**
    * Should be rounded up to time frame (in UTC)
    * @format date-time
@@ -2038,11 +2351,12 @@ export interface PendleMarketsControllerMarketStateHistoryParams {
   address: string;
 }
 
-export type PendleMarketsControllerMarketStateHistoryData = PendleGetMarketStatHistoryCSVResponse;
+export type PendleMarketsControllerMarketStateHistoryData =
+  PendleGetMarketStatHistoryCSVResponse;
 
 export interface PendleMarketsControllerMarketApyHistoryV3Params {
   /** @default "hour" */
-  time_frame?: 'hour' | 'day' | 'week';
+  time_frame?: "hour" | "day" | "week";
   /**
    * Should be rounded up to time frame (in UTC)
    * @format date-time
@@ -2057,11 +2371,12 @@ export interface PendleMarketsControllerMarketApyHistoryV3Params {
   address: string;
 }
 
-export type PendleMarketsControllerMarketApyHistoryV3Data = PendleMarketHistoricalDataTableResponse;
+export type PendleMarketsControllerMarketApyHistoryV3Data =
+  PendleMarketHistoricalDataTableResponse;
 
 export interface PendleMarketsControllerMarketApyHistory1DParams {
   /** @default "hour" */
-  time_frame?: 'hour' | 'day' | 'week';
+  time_frame?: "hour" | "day" | "week";
   /**
    * Should be rounded up to time frame (in UTC)
    * @format date-time
@@ -2076,7 +2391,8 @@ export interface PendleMarketsControllerMarketApyHistory1DParams {
   address: string;
 }
 
-export type PendleMarketsControllerMarketApyHistory1DData = PendleMarketApyHistoriesCSVResponse;
+export type PendleMarketsControllerMarketApyHistory1DData =
+  PendleMarketApyHistoriesCSVResponse;
 
 export interface PendleMarketsControllerMarketImpliedApyChartParams {
   /**
@@ -2093,9 +2409,25 @@ export interface PendleMarketsControllerMarketImpliedApyChartParams {
   address: string;
 }
 
-export type PendleMarketsControllerMarketImpliedApyChartData = PendleMarketImpliedApyResponseEntity;
+export type PendleMarketsControllerMarketImpliedApyChartData =
+  PendleMarketImpliedApyResponseEntity;
 
-export type PendleMarketsControllerMarketAssetsData = PendleMarketAssetsResponse;
+export type PendleMarketsControllerMarketAssetsData =
+  PendleMarketAssetsResponse;
+
+export interface PendleMarketsControllerGetSwapAmountToChangeImpliedApyParams {
+  /** Address can be token / SY / PT or YT */
+  tokenIn: string;
+  /** Address can be token / SY / PT or YT */
+  tokenOut: string;
+  /** Target implied apy */
+  targetImpliedApy: number;
+  chainId: number;
+  address: string;
+}
+
+export type PendleMarketsControllerGetSwapAmountToChangeImpliedApyData =
+  PendleSwapAmountToChangeApyResponse;
 
 export type PendleMarketCategoriesControllerFindAllMarketCategoriesData =
   PendleGetAllMarketCategoriesResponse;
@@ -2113,7 +2445,7 @@ export interface PendleAssetsControllerAssetsParams {
    */
   order_by?: string;
   /**
-   * Maximum number of results to skip. The parameter is capped at 1000.
+   * Number of results to skip. The parameter is capped at 1000.
    * @default 0
    */
   skip?: number;
@@ -2144,7 +2476,8 @@ export type PendleAssetsControllerAssetData = PendleAssetResponse;
 export type PendleAssetsControllerGetAllPendleTokensInUniswapFormatData =
   PendleUniswapTokenListResponse;
 
-export type PendleSysControllerWhitelistedSysData = PendleWhitelistedSysResponse;
+export type PendleSysControllerWhitelistedSysData =
+  PendleWhitelistedSysResponse;
 
 export type PendleSysControllerAssetSyData = PendleSyResponse;
 
@@ -2153,14 +2486,16 @@ export interface PendleVePendleControllerVoteSnapshotParams {
   epoch?: string;
 }
 
-export type PendleVePendleControllerVoteSnapshotData = PendleVoteSnapshotResponse;
+export type PendleVePendleControllerVoteSnapshotData =
+  PendleVoteSnapshotResponse;
 
 export interface PendleVePendleControllerPoolVoterApyParams {
   /** @example "voterApy:-1" */
   order_by?: string;
 }
 
-export type PendleVePendleControllerPoolVoterApyData = PendlePoolVoterApysResponse;
+export type PendleVePendleControllerPoolVoterApyData =
+  PendlePoolVoterApysResponse;
 
 export interface PendleVePendleControllerGetPoolVoterAprAndSwapFeeParams {
   /** @example "voterApr:-1" */
@@ -2174,27 +2509,30 @@ export type PendleVePendleControllerPoolMetadataData = PendlePoolResponse[];
 
 export interface PendleVePendleControllerVoterApyChartParams {
   /** @default "hour" */
-  time_frame?: 'hour' | 'day' | 'week';
+  time_frame?: "hour" | "day" | "week";
   /** @format date-time */
   timestamp_gte?: string;
   /** @format date-time */
   timestamp_lte?: string;
 }
 
-export type PendleVePendleControllerVoterApyChartData = PendleVoterApyChartResponse;
+export type PendleVePendleControllerVoterApyChartData =
+  PendleVoterApyChartResponse;
 
 export interface PendleVePendleControllerVePendleApyChartParams {
   /** @default "hour" */
-  time_frame?: 'hour' | 'day' | 'week';
+  time_frame?: "hour" | "day" | "week";
   /** @format date-time */
   timestamp_gte?: string;
   /** @format date-time */
   timestamp_lte?: string;
 }
 
-export type PendleVePendleControllerVePendleApyChartData = PendleVePendleApyChartResponse;
+export type PendleVePendleControllerVePendleApyChartData =
+  PendleVePendleApyChartResponse;
 
-export type PendleVePendleControllerPendleTokenSupplyData = PendlePendleTokenSupplyResponse;
+export type PendleVePendleControllerPendleTokenSupplyData =
+  PendlePendleTokenSupplyResponse;
 
 export interface PendleVePendleControllerGetHistoricalVotesParams {
   /** @format date-time */
@@ -2202,7 +2540,8 @@ export interface PendleVePendleControllerGetHistoricalVotesParams {
   address: string;
 }
 
-export type PendleVePendleControllerGetHistoricalVotesData = PendleGetHistoricalVotesResponse;
+export type PendleVePendleControllerGetHistoricalVotesData =
+  PendleGetHistoricalVotesResponse;
 
 export interface PendleVePendleControllerAllMarketTotalFeesParams {
   /**
@@ -2217,7 +2556,11 @@ export interface PendleVePendleControllerAllMarketTotalFeesParams {
   timestamp_end?: string;
 }
 
-export type PendleVePendleControllerAllMarketTotalFeesData = PendleAllMarketTotalFeesResponse;
+export type PendleVePendleControllerAllMarketTotalFeesData =
+  PendleAllMarketTotalFeesResponse;
+
+export type PendleVePendleControllerOngoingVotesData =
+  PendleGetOngoingVotesResponse;
 
 export type PendlePendleControllerPendleSupplyData = any;
 
@@ -2225,7 +2568,7 @@ export type PendlePendleControllerPendleCirculatingSupplyData = any;
 
 export interface PendlePricesControllerOhlcvV4Params {
   /** @default "hour" */
-  time_frame?: 'hour' | 'day' | 'week';
+  time_frame?: "hour" | "day" | "week";
   /**
    * Should be rounded up to time frame (in UTC)
    * @format date-time
@@ -2242,7 +2585,8 @@ export interface PendlePricesControllerOhlcvV4Params {
 
 export type PendlePricesControllerOhlcvV4Data = PendlePriceOHLCVCSVResponse;
 
-export type PendlePricesControllerGetAllAssetPricesData = PendleAssetPricesResponse;
+export type PendlePricesControllerGetAllAssetPricesData =
+  PendleAssetPricesResponse;
 
 export interface PendlePricesControllerGetAllAssetPricesByAddressesParams {
   /** Use comma separated values to search by multiple addresses. Upto 50 addresses allowed */
@@ -2250,11 +2594,12 @@ export interface PendlePricesControllerGetAllAssetPricesByAddressesParams {
   chainId: number;
 }
 
-export type PendlePricesControllerGetAllAssetPricesByAddressesData = PendleAssetPricesResponse;
+export type PendlePricesControllerGetAllAssetPricesByAddressesData =
+  PendleAssetPricesResponse;
 
 export interface PendlePricesControllerVolumeByMarketParams {
   /** @default "hour" */
-  time_frame?: 'hour' | 'day' | 'week';
+  time_frame?: "hour" | "day" | "week";
   /**
    * Should be rounded up to time frame (in UTC)
    * @format date-time
@@ -2269,16 +2614,17 @@ export interface PendlePricesControllerVolumeByMarketParams {
    * pt or yt
    * @default "pt"
    */
-  type: 'pt' | 'yt';
+  type: "pt" | "yt";
   chainId: number;
   address: string;
 }
 
-export type PendlePricesControllerVolumeByMarketData = PendlePriceOHLCVCSVResponse;
+export type PendlePricesControllerVolumeByMarketData =
+  PendlePriceOHLCVCSVResponse;
 
 export interface PendlePricesControllerNotionalVolumeByMarketParams {
   /** @default "hour" */
-  time_frame?: 'hour' | 'day' | 'week';
+  time_frame?: "hour" | "day" | "week";
   /**
    * Should be rounded up to time frame (in UTC)
    * @format date-time
@@ -2293,11 +2639,12 @@ export interface PendlePricesControllerNotionalVolumeByMarketParams {
   address: string;
 }
 
-export type PendlePricesControllerNotionalVolumeByMarketData = PendleNotionalVolumeResponse;
+export type PendlePricesControllerNotionalVolumeByMarketData =
+  PendleNotionalVolumeResponse;
 
 export interface PendlePricesControllerOhlcvV2Params {
   /** @default "hour" */
-  time_frame?: 'hour' | 'day' | 'week';
+  time_frame?: "hour" | "day" | "week";
   /**
    * Should be rounded up to time frame (in UTC)
    * @format date-time
@@ -2316,7 +2663,7 @@ export type PendlePricesControllerOhlcvV2Data = PendlePriceOHLCVResponse;
 
 export interface PendlePricesControllerOhlcvV3Params {
   /** @default "hour" */
-  time_frame?: 'hour' | 'day' | 'week';
+  time_frame?: "hour" | "day" | "week";
   /**
    * Should be rounded up to time frame (in UTC)
    * @format date-time
@@ -2336,7 +2683,7 @@ export type PendlePricesControllerOhlcvV3Data = PendlePriceOHLCVResponse;
 export interface PendleTransactionsControllerTransactionsV3Params {
   market: string;
   /**
-   * Maximum number of results to skip.
+   * Number of results to skip for pagination. Limited to max 2000. For larger result sets, use version 4.
    * @default 0
    */
   skip?: number;
@@ -2359,13 +2706,45 @@ export interface PendleTransactionsControllerTransactionsV3Params {
   chainId: number;
 }
 
-export type PendleTransactionsControllerTransactionsV3Data = PendleTransactionsResponse;
+export type PendleTransactionsControllerTransactionsV3Data =
+  PendleTransactionsResponse;
 
 export interface PendleTransactionsControllerTransactionsV4Params {
+  market?: string;
+  /**
+   * Number of results to skip for pagination. Limited to max 5000. For larger result sets, use resume token instead.
+   * @default 0
+   */
+  skip?: number;
+  /**
+   * Maximum number of results to return. The parameter is capped at 1000.
+   * @default 10
+   */
+  limit?: number;
+  /** Use comma separated values to search by multiple values. Possible values are MINT_PY, REDEEM_PY, ADD_LIQUIDITY, REMOVE_LIQUIDITY, SWAP_PT, SWAP_YT and SWAP_PY */
+  action?: string;
+  /** Use comma separated values to search by multiple values. Possible values are ROUTER, PENDLE_MARKET and YT */
+  origin?: string;
+  /** @format date-time */
+  timestamp_start?: string;
+  /** @format date-time */
+  timestamp_end?: string;
+  user?: string;
+  minValue?: number;
+  maxValue?: number;
+  /** Resume token for pagination. Use this to continue a previous query. */
+  resumeToken?: string;
+  chainId: number;
+}
+
+export type PendleTransactionsControllerTransactionsV4Data =
+  PendleTransactionsV4Response;
+
+export interface PendleTransactionsControllerTransactionsV5Params {
   /** Transaction type. Possible values are TRADES and LIQUIDITY */
   type: string;
   /**
-   * Maximum number of results to skip.
+   * Number of results to skip. The parameter is capped at 1000.
    * @default 0
    */
   skip?: number;
@@ -2377,35 +2756,58 @@ export interface PendleTransactionsControllerTransactionsV4Params {
   minValue?: number;
   /** Address, who execute the transaction */
   txOrigin?: string;
+  /** Transaction action. Possible values are LONG_YIELD, SHORT_YIELD, ADD_LIQUIDITY, REMOVE_LIQUIDITY */
+  action?: string;
   chainId: number;
   address: string;
 }
 
-export type PendleTransactionsControllerTransactionsV4Data = PendleTransactionsV4Response;
+export type PendleTransactionsControllerTransactionsV5Data =
+  PendleTransactionsV5Response;
 
-export type PendleTransactionsControllerTransactionData = PendleTransactionResponse;
+export type PendleTransactionsControllerTransactionData =
+  PendleTransactionResponse;
 
-export type PendleMetadataControllerGetValuesByKeysData = PendleMetadataResponse;
+export type PendleMetadataControllerGetValuesByKeysData =
+  PendleMetadataResponse;
 
-export type PendleMetadataControllerGetValuesByKeysV2ByPostData = PendleMetadataResponse;
+export type PendleMetadataControllerGetValuesByKeysV2ByPostData =
+  PendleMetadataResponse;
 
 export interface PendleMetadataControllerGetValuesByKeysV2ByGetParams {
   keys: string[];
 }
 
-export type PendleMetadataControllerGetValuesByKeysV2ByGetData = PendleMetadataValuesResponse;
+export type PendleMetadataControllerGetValuesByKeysV2ByGetData =
+  PendleMetadataValuesResponse;
+
+export type PendleMetadataControllerGetMetadataValuesByTemplateData =
+  PendleGetMetadataByTemplateResponse;
 
 export type PendleStatisticsControllerGetTvlAndTradingVolumeData =
   PendleTvlAndTradingVolumeResponseEntity;
 
 export interface PendleStatisticsControllerGetDistinctUserFromTokenParams {
   token: string;
+  /** Filter by chain id if specified */
+  chainId?: number;
 }
 
 export type PendleStatisticsControllerGetDistinctUserFromTokenData =
   PendleGetDistinctUsersFromTokenEntity;
 
-export type PendleMerkleControllerGetRewardsByAddressData = PendleMerkleRewardsResponse;
+export interface PendleMerkleControllerGetRewardsByAddressParams {
+  /**
+   * The chainId of the chain to get rewards from
+   * @default 1
+   */
+  chainId?: number;
+  address: string;
+  campaign: "vependle" | "arbitrum-grant" | "multi-token" | "external-rewards";
+}
+
+export type PendleMerkleControllerGetRewardsByAddressData =
+  PendleMerkleRewardsResponse;
 
 export interface PendleMerkleControllerGetProofByAddressParams {
   /**
@@ -2413,11 +2815,29 @@ export interface PendleMerkleControllerGetProofByAddressParams {
    * @default false
    */
   generateVerifyData?: boolean;
+  /**
+   * The chainId of the chain to verify the merkle root on
+   * @default 1
+   */
+  chainId?: number;
   address: string;
-  campaign: 'vependle' | 'arbitrum-grant' | 'multi-token';
+  campaign: "vependle" | "arbitrum-grant" | "multi-token" | "external-rewards";
 }
 
-export type PendleMerkleControllerGetProofByAddressData = PendleMerkleProofResponse;
+export type PendleMerkleControllerGetProofByAddressData =
+  PendleMerkleProofResponse;
+
+export interface PendleMerkleControllerGetProofByAddressV2Params {
+  /**
+   * Set to true to generate calldata to verify merkle root in the PendleMerkleDistributor contract
+   * @default false
+   */
+  generateVerifyData?: boolean;
+  address: string;
+}
+
+export type PendleMerkleControllerGetProofByAddressV2Data =
+  PendleMerkleProofV2Response;
 
 export type PendleTransferLiquidityControllerGetDefaultTokenOutListData =
   PendleSyTokenOutRouteListResponse;
@@ -2429,6 +2849,21 @@ export interface PendleQuerierControllerGetSimplifiedDataParams {
   isExpired?: boolean;
 }
 
-export type PendleQuerierControllerGetSimplifiedDataData = PendleGetSimplifiedDataResponse;
+export type PendleQuerierControllerGetSimplifiedDataData =
+  PendleGetSimplifiedDataResponse;
 
-export type PendleChainsControllerGetSupportedChainIdsData = PendleChainIdsResponse;
+export type PendleChainsControllerGetSupportedChainIdsData =
+  PendleChainIdsResponse;
+
+export interface PendleDashboardControllerGetUserPositionsParams {
+  /**
+   * Minimum USD value threshold to filter positions
+   * @example 0.1
+   */
+  filterUsd?: number;
+  /** Ethereum address of the user */
+  user: string;
+}
+
+export type PendleDashboardControllerGetUserPositionsData =
+  PendleUserPositionsCrossChainResponse;

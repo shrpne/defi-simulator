@@ -12,6 +12,7 @@ import { balancePriceTokensExtractor, balancePriceTokensFormatter } from '@/lib/
 import { getSwapQuote } from '@/lib/api/lifi.ts';
 import { getSwapQuoteTokensExtractor, getGasUsedFromSwapQuote, getReceiveAmountFromSwapQuote } from '@/lib/api/lifi-utils.ts';
 import { buildApproveTx, encodeApproveData } from '@/lib/web3-utils.ts';
+import {pretty} from '@/utils/pretty-num.ts';
 
 import { useOnboard } from '@web3-onboard/vue';
 import useAsyncAction from '@/composables/use-async-action.ts';
@@ -192,6 +193,10 @@ const formatExpiry = (expiry: string) => {
     });
     return `${formattedDate} (${diffDays} days)`;
 };
+
+function formatPercent(value: number) {
+    return `${pretty(value * 100)}%`;
+}
 </script>
 
 <template>
@@ -307,7 +312,7 @@ const formatExpiry = (expiry: string) => {
                     <template #option="slotProps: { option: PendleMarketData }">
                         <UiToken
                             class="p-2 grow"
-                            :token="{symbol: slotProps.option.name}"
+                            :token="{symbol: slotProps.option.name, amount: formatPercent(slotProps.option.details.impliedApy)}"
                             :text="formatExpiry(slotProps.option.expiry)"
                         />
                     </template>
