@@ -14,7 +14,7 @@ import { getSwapQuoteTokensExtractor, getGasUsedFromSwapQuote, getReceiveAmountF
 import { buildApproveTx, encodeApproveData } from '@/lib/web3-utils.ts';
 import {pretty} from '@/utils/pretty-num.ts';
 
-import { useOnboard } from '@web3-onboard/vue';
+import useWallet from '@/composables/use-wallet-reown-appkit.ts';
 import useAsyncAction from '@/composables/use-async-action.ts';
 import useTokens, { type TokenValue } from '@/composables/use-tokens.ts';
 
@@ -23,7 +23,7 @@ import UiToken from '@/components/ui/Token.vue';
 import ProtocolEstimationResult from '@/components/ProtocolEstimationResult.vue';
 
 
-const { connectedWallet } = useOnboard();
+const { address: walletAddress } = useWallet();
 const { tokens, extractTokens, getTokenValue, prepareToken } = useTokens();
 
 extractTokens(getAssetsPrices(), pendlePriceExtractor);
@@ -40,8 +40,6 @@ const {
 } = useAsyncAction(getMarkets, {
     immediate: true,
 });
-
-const walletAddress = computed(() => connectedWallet.value?.accounts[0]?.address);
 
 const {
     data: _balance,

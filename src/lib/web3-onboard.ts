@@ -1,3 +1,4 @@
+/*
 import { init } from '@web3-onboard/vue';
 import injectedModule from '@web3-onboard/injected-wallets';
 
@@ -24,7 +25,7 @@ const web3Onboard = init({
             label: 'Ethereum Mainnet',
             rpcUrl: 'https://eth.llamarpc.com',
         },
-        /*
+        /!*
         {
           id: 42161,
           token: 'ARB-ETH',
@@ -43,8 +44,9 @@ const web3Onboard = init({
           label: 'Base',
           rpcUrl: 'https://mainnet.base.org',
         },
-        */
+        *!/
     ],
 });
 
 export default web3Onboard;
+*/
