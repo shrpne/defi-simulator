@@ -16,8 +16,9 @@ const _useWallet = function () {
 
     const isConnected = computed(() => account.value.isConnected);
     const address = computed(() => {
-        if (account.value.address && isAddress(account.value.address)) {
-            return account.value.address;
+        const lowerAddress = account.value.address?.toLowerCase();
+        if (lowerAddress && isAddress(lowerAddress)) {
+            return lowerAddress;
         }
         return undefined;
     });

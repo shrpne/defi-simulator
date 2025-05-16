@@ -29,6 +29,7 @@ const appKit = createAppKit({
     networks,
     projectId,
     // metadata,
+    enableCoinbase: false,
     features: {
         email: false,
         socials: false,
