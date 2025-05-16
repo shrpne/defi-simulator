@@ -22,6 +22,7 @@ type Props = {
     options?: Array<Option>;
     getSuggestionValue?: (value: Option) => string;
     getSuggestionDisplay?: (value: Option) => string;
+    filterPositionAny?: boolean;
     maxValue?: string | number;
     isEstimation?: boolean;
     isDecimal?: boolean;
@@ -172,6 +173,7 @@ const handleUseMax = (value: boolean) => {
             :options="options"
             :getSuggestionValue="getSuggestionValue"
             :getSuggestionDisplay="getSuggestionDisplay"
+            :filter-position-any="props.filterPositionAny"
             @select="handleSelect($event)"
         >
             <template #option="{option}">

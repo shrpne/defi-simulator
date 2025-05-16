@@ -49,6 +49,17 @@ function fetchTokenInfo(tokenAddress: Address) {
         });
 }
 
+async function ensureTokenInfo(tokenAddress: Address): Promise<TokenInfoValid> {
+    if (!isValidTokenInfo(tokens[tokenAddress])) {
+        await fetchTokenInfo(tokenAddress);
+    }
+    const tokenInfo = tokens[tokenAddress];
+    if (!isValidTokenInfo(tokenInfo)) {
+        throw new Error(`Token info not found for address: ${tokenAddress}`);
+    }
+    return tokenInfo;
+}
+
 function isValidTokenInfo(tokenInfo: TokenInfo): tokenInfo is TokenInfoValid {
     if (!tokenInfo || tokenInfo.decimals === undefined || tokenInfo.decimals === null) {
         return false;
@@ -77,9 +88,7 @@ export type GetTokenValue = typeof getTokenValue;
 
 export async function prepareToken(...args: Parameters<GetTokenValue>): Promise<ReturnType<GetTokenValue>> {
     const [tokenAddress, value] = args;
-    if (!isValidTokenInfo(tokens[tokenAddress])) {
-        await fetchTokenInfo(tokenAddress);
-    }
+    await ensureTokenInfo(tokenAddress);
     return getTokenValue(tokenAddress, value);
 }
 
@@ -95,6 +104,7 @@ export default function useTokens() {
         updateTokens,
         extractTokens,
         fetchTokenInfo,
+        ensureTokenInfo,
         getTokenValue,
         prepareToken,
     };

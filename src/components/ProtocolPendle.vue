@@ -24,7 +24,7 @@ import ProtocolEstimationResult from '@/components/ProtocolEstimationResult.vue'
 
 
 const { address: walletAddress } = useWallet();
-const { tokens, extractTokens, getTokenValue, prepareToken } = useTokens();
+const { tokens, ensureTokenInfo, extractTokens, getTokenValue, prepareToken } = useTokens();
 
 extractTokens(getAssetsPrices(), pendlePriceExtractor);
 // doesn't have icons
@@ -154,32 +154,59 @@ async function handleSubmit() {
     if (!syUnderlyingInfo.value) {
         return;
     }
+    const underlyingInfo = await ensureTokenInfo(selectedMarketUnderlying.value);
+    const isUnderlyingAssetsSame = syUnderlyingInfo.value.contractAddress === selectedMarketUnderlying.value;
 
+    let underlyingValue = parseUnits(simulationSteps.value[0].receive.amount, underlyingInfo.decimals);
     // for example, PT-sUSDe will have sUSDe as underlying asset, but amount will be equal to SY-sUSDe's underlying USDe
-    let underlyingAmount = simulationSteps.value[0].receive.value;
-    if (syUnderlyingInfo.value.contractAddress !== selectedMarketUnderlying.value) {
-        underlyingAmount = underlyingAmount * BigInt(10 ** syUnderlyingInfo.value.decimals) / syUnderlyingInfo.value.exchangeRate;
+    if (!isUnderlyingAssetsSame) {
+        // applying exchange rate (it is in wei)
+        underlyingValue = underlyingValue * BigInt(10 ** syUnderlyingInfo.value.decimals) / syUnderlyingInfo.value.exchangeRate;
     }
     simulationSteps.value[1] = {
         name: 'Redeem matured PT into underlying',
         gas: 300_000,
-        receive: await prepareToken(selectedMarketUnderlying.value, underlyingAmount),
+        receive: await prepareToken(selectedMarketUnderlying.value, underlyingValue),
     };
+    if (!isUnderlyingAssetsSame) {
+        const syUnderlyingValue = parseUnits(simulationSteps.value[0].receive.amount, syUnderlyingInfo.value.decimals);
+        simulationSteps.value[2] = {
+            name: 'Denominated as SY underlying',
+            gas: 0,
+            receive: await prepareToken(syUnderlyingInfo.value.contractAddress, syUnderlyingValue),
+        };
+    }
 
     // STEP #3
-    const quote = await extractTokens(getSwapQuote({
-        fromAddress: walletAddress.value,
-        fromToken: simulationSteps.value[1].receive.contractAddress,
-        toToken: tokenIn,
-        fromAmount: simulationSteps.value[1].receive.value.toString(),
-    }), getSwapQuoteTokensExtractor)
+    let quote: Awaited<ReturnType<typeof getSwapQuote>>
+    try {
+        quote = await extractTokens(getSwapQuote({
+            fromAddress: walletAddress.value,
+            fromToken: simulationSteps.value[1].receive.contractAddress,
+            toToken: tokenIn,
+            fromAmount: simulationSteps.value[1].receive.value.toString(),
+        }), getSwapQuoteTokensExtractor)
+    } catch (error) {
+        // update from just info to withdraw tx
+        simulationSteps.value[2].gas = 300_000;
+        simulationSteps.value[2].name = 'Withdraw to SY underlying (Market underlying is not swappable)';
+
+        // calculate based on latest
+        quote = await extractTokens(getSwapQuote({
+            fromAddress: walletAddress.value,
+            fromToken: simulationSteps.value[2].receive.contractAddress,
+            toToken: tokenIn,
+            fromAmount: simulationSteps.value[2].receive.value.toString(),
+        }), getSwapQuoteTokensExtractor)
+    }
+
     console.log('quote', quote);
 
-    simulationSteps.value[2] = {
+    simulationSteps.value.push({
         name: 'Swap',
         gas: getGasUsedFromSwapQuote(quote),
         receive: await prepareToken(tokenIn, getReceiveAmountFromSwapQuote(quote)),
-    };
+    });
 }
 
 const formatExpiry = (expiry: string) => {
@@ -300,6 +327,7 @@ function getMarketLogo(market: PendleMarketData) {
                     v-model:coin="selectedMarket"
                     :amount="false"
                     :options="markets"
+                    :filter-position-any="true"
                     :get-suggestion-value="(val) => val.name"
                     placeholder="Select a market"
                     label="You Enter"
@@ -353,9 +381,5 @@ function getMarketLogo(market: PendleMarketData) {
             :receive-address="selectedMarketPt"
             :underlying-address="selectedMarketUnderlying"
         />
-
-        <pre>
-            {{ tokens['0x4c9edd5852cd905f086c759e8383e09bff1e68b3'] }}
-        </pre>
     </div>
 </template>

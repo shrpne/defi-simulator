@@ -13,6 +13,7 @@ type Props = {
     options?: Array<Option>;
     maxOptions?: number;
     filter?: (item: Option, query: string) => boolean;
+    filterPositionAny?: boolean;
     getSuggestionValue?: (option: Option) => string;
     getSuggestionDisplay?: (option: Option) => string;
     placeholder?: string;
@@ -98,7 +99,13 @@ function suggestionFilterDefault(item: Option, query: string) {
     const value = props.getSuggestionValue(item).toLowerCase();
     const display = props.getSuggestionDisplay?.(item).toLowerCase() || '';
     // keep only values started with the query (e.g., remove "WALLET" for "LET" query)
-    return value.indexOf(query) === 0 || display.indexOf(query) === 0;
+    if (!props.filterPositionAny) {
+        // keep only values started with the query (e.g., remove "WALLET" for "LET" query)
+        return value.indexOf(query) === 0 || display.indexOf(query) === 0;
+    } else {
+        // any position
+        return value.indexOf(query) !== -1 || display.indexOf(query) !== -1;
+    }
 }
 
 function handleOptionClick(option: Option) {
