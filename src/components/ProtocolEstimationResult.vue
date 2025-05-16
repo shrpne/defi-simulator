@@ -13,6 +13,7 @@ const props = defineProps<{
     spendAddress: Address,
     receiveAddress: Address,
     underlyingAddress?: Address,
+    strategyDuration?: number,
 }>();
 
 const { tokens, fetchTokenInfo } = useTokens();
@@ -41,19 +42,30 @@ const profitPercent = computed(() => {
     }
     return profit.value / props.spendToken.usdValue * 100;
 });
+const apy = computed(() => {
+    if (!props.strategyDuration || props.strategyDuration < 0) {
+        return 0;
+    }
+    return profitPercent.value / props.strategyDuration * 365;
+})
 </script>
 
 <template>
     <div>
 
-        <UiToken v-for="(step, i) in steps" :key="i"
-            :token="step.receive"
-        />
+        <div v-for="(step, i) in steps" :key="i" class="mt-2">
+            <div>{{ step.name }}</div>
+            <UiToken
+                :token="step.receive"
+            />
+        </div>
+
 
         <div class="space-y-4">
             <div class="flex items-center rounded-md border px-3 py-2 text-sm">
                 <span class="shrink-0">Gas price</span>
                 <input
+                    v-model="gasPriceGwei"
                     type="text"
                     inputmode="numeric"
                     class="h-10 w-full ml-auto ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-10"
@@ -70,17 +82,23 @@ const profitPercent = computed(() => {
                         <span class="text-sm">{{ pretty(totalGasUsed, true) }}</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-sm font-medium leading-none">Fees:</span>
+                        <span class="text-sm font-medium leading-none">Gas fees:</span>
                         <span class="text-sm">
-                            {{ pretty(ethFees) }} ETH
-                            <span class="text-muted text-sm">${{ prettyUsd(usdFees) }}</span>
+                            ${{ prettyUsd(usdFees) }}
+                            <span class="text-muted text-sm">{{ pretty(ethFees) }} ETH</span>
                         </span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-sm font-medium leading-none">Profit:</span>
                         <span class="text-sm">
-                            {{ prettyUsd(profitPercent) }}%
-                            <span class="text-muted text-sm">${{ prettyUsd(profit) }}</span>
+                            ${{ prettyUsd(profit) }}
+                            <span class="text-muted text-sm">{{ prettyUsd(profitPercent) }}%</span>
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium leading-none">APY:</span>
+                        <span class="text-sm">
+                            {{ prettyUsd(apy) }}%
                         </span>
                     </div>
                 </div>

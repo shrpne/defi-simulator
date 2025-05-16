@@ -110,6 +110,7 @@ async function handleSubmit() {
     if (!spendTokenValue.value?.contractAddress || !selectedMarket.value || !selectedMarketPt.value || !walletAddress.value) {
         return;
     }
+    simulationSteps.value = [];
     const tokenIn = spendTokenValue.value.contractAddress;
     const amountIn = spendTokenValue.value.value.toString();
     const tokenOut = selectedMarketPt.value;
@@ -209,12 +210,19 @@ async function handleSubmit() {
     });
 }
 
-const formatExpiry = (expiry: string) => {
+const getDiffDays = (expiry: string|undefined) => {
+    if (!expiry) {
+        return -1;
+    }
     const expiryDate = new Date(expiry);
     const now = new Date();
     const diffTime = expiryDate.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const formattedDate = expiryDate.toLocaleDateString('en-GB', {
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+const formatExpiry = (expiry: string) => {
+    const diffDays = getDiffDays(expiry);
+    const formattedDate = new Date(expiry).toLocaleDateString('en-GB', {
         day: 'numeric',
         month: 'short',
         year: 'numeric',
@@ -380,6 +388,7 @@ function getMarketLogo(market: PendleMarketData) {
             :spend-address="walletAddress"
             :receive-address="selectedMarketPt"
             :underlying-address="selectedMarketUnderlying"
+            :strategy-duration="getDiffDays(selectedMarket?.expiry)"
         />
     </div>
 </template>
