@@ -13,11 +13,13 @@ import { getSwapQuote } from '@/lib/api/lifi.ts';
 import { getSwapQuoteTokensExtractor, getGasUsedFromSwapQuote, getReceiveAmountFromSwapQuote } from '@/lib/api/lifi-utils.ts';
 import { buildApproveTx, encodeApproveData } from '@/lib/web3-utils.ts';
 import {pretty} from '@/utils/pretty-num.ts';
+import { getErrorText } from '@/utils/error.ts';
 
+import { useQuery, useMutation } from '@shrpne/use-query';
 import useWallet from '@/composables/use-wallet-reown-appkit.ts';
-import { useQuery } from '@shrpne/use-query';
 import useTokens, { type TokenValue } from '@/composables/use-tokens.ts';
 
+import BaseButton from '@/components/ui/BaseButton.vue';
 import FieldCoin from '@/components/ui/FieldCoin.vue';
 import UiToken from '@/components/ui/Token.vue';
 import ProtocolEstimationResult from '@/components/ProtocolEstimationResult.vue';
@@ -104,13 +106,14 @@ const isLoading = computed(() => {
     return marketsStatus.value === 'pending' || balanceStatus.value === 'pending';
 });
 
-async function handleSubmit() {
+async function _handleSubmit() {
     console.log('Swap', spendTokenValue.value, 'to', spendTokenValue.value);
     // STEP #1
     if (!spendTokenValue.value?.contractAddress || !selectedMarket.value || !selectedMarketPt.value || !walletAddress.value) {
         return;
     }
     simulationSteps.value = [];
+    simulationResult.value = undefined;
     const tokenIn = spendTokenValue.value.contractAddress;
     const amountIn = spendTokenValue.value.value.toString();
     const tokenOut = selectedMarketPt.value;
@@ -209,6 +212,11 @@ async function handleSubmit() {
         receive: await prepareToken(tokenIn, getReceiveAmountFromSwapQuote(quote)),
     });
 }
+const {
+    status: submitStatus,
+    error: submitError,
+    execute: handleSubmit
+} = useMutation(_handleSubmit);
 
 const getDiffDays = (expiry: string|undefined) => {
     if (!expiry) {
@@ -371,14 +379,19 @@ function getMarketLogo(market: PendleMarketData) {
             </div>
 
             <!-- Submit Button -->
-            <button
+            <BaseButton
                 type="submit"
-                class="btn btn-primary btn-lg w-full"
+                class="btn-primary btn-lg w-full"
                 :disabled="!spendTokenValue || !selectedMarket"
+                :loading="submitStatus === 'pending'"
             >
                 Enter Market
-            </button>
+            </BaseButton>
         </form>
+
+        <p v-if="submitError && submitStatus === 'error'" class="alert alert-error alert-soft mt-4">
+            {{ getErrorText(submitError) }}
+        </p>
 
         <ProtocolEstimationResult
             v-if="simulationResult && spendTokenValue && selectedMarketPt && walletAddress"
