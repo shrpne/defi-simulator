@@ -41,7 +41,7 @@ export function simulateTransaction(tx: SimulateTxParams) {
         },
         {
             headers: {
-                'X-Access-Key': TENDERLY_ACCESS_KEY as string,
+                'X-Access-Key': TENDERLY_ACCESS_KEY,
             },
         },
     );
@@ -81,7 +81,7 @@ export function simulateBundle(txList: Array<SimulateTxParams>) {
         },
         {
             headers: {
-                'X-Access-Key': TENDERLY_ACCESS_KEY as string,
+                'X-Access-Key': TENDERLY_ACCESS_KEY,
             },
         },
     );

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import {PROTOCOL_LIST} from '@/lib/protocols.ts';
-import { simulateTransaction, simulateBundle, simulateBundleRpc } from '@/lib/api/tenderly.ts';
+// import { simulateTransaction, simulateBundle, simulateBundleRpc } from '@/lib/api/tenderly.ts';
 import ProtocolPendle from '@/components/ProtocolPendle.vue';
 
 // const totalGasUsed = ref<number>();
