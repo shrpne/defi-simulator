@@ -15,7 +15,7 @@ import { buildApproveTx, encodeApproveData } from '@/lib/web3-utils.ts';
 import {pretty} from '@/utils/pretty-num.ts';
 
 import useWallet from '@/composables/use-wallet-reown-appkit.ts';
-import useAsyncAction from '@/composables/use-async-action.ts';
+import { useQuery } from '@shrpne/use-query';
 import useTokens, { type TokenValue } from '@/composables/use-tokens.ts';
 
 import FieldCoin from '@/components/ui/FieldCoin.vue';
@@ -37,7 +37,7 @@ const {
     status: marketsStatus,
     error: marketsError,
     execute: fetchMarkets,
-} = useAsyncAction(getMarkets, {
+} = useQuery(getMarkets, {
     immediate: true,
 });
 
@@ -45,7 +45,7 @@ const {
     data: _balance,
     status: balanceStatus,
     error: balanceError,
-} = useAsyncAction(() => {
+} = useQuery(() => {
     if (!walletAddress.value) {
         return Promise.resolve([]);
     }
@@ -90,7 +90,7 @@ const {
     status: syUnderlyingInfoStatus,
     error: syUnderlyingInfoError,
     ensure: syUnderlyingInfoEnsure,
-} = useAsyncAction(() => {
+} = useQuery(() => {
     if (!selectedMarketSy.value) {
         return Promise.resolve(undefined);
     }
