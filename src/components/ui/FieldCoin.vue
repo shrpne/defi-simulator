@@ -104,6 +104,8 @@ const openDropdown = () => {
 
 const handleSelect = (coin: Option) => {
     emit('update:coin', coin);
+    // also clear amount
+    emit('update:amount', '');
 };
 
 const handleUseMax = (value: boolean) => {
