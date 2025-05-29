@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import useWallet from '@/composables/use-wallet-reown-appkit.ts';
+import BaseDropdown from '@/components/ui/BaseDropdown.vue';
 
 const {
     isConnected,
@@ -21,10 +22,13 @@ const {
             </svg>
             Connect Wallet
         </button>
-        <div v-else class="flex items-center gap-4">
-            <p class="font-semibold">{{ shortAddress }}</p>
-            <button @click="disconnect()" class="btn btn-neutral">Disconnect</button>
-        </div>
+        <BaseDropdown
+            v-else
+            :label="shortAddress"
+            button-class="font-semibold!"
+        >
+            <button @click="disconnect()" class="btn btn-neutral w-full">Disconnect</button>
+        </BaseDropdown>
         <button v-if="isConnected && Number(connectedChainId) !== 1" @click="switchChain" class="btn">Switch to Ethereum Mainnet</button>
         <!--<p v-if="settingChain">Switching Network...</p>-->
     </div>
