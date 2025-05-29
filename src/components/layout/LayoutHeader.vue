@@ -8,7 +8,7 @@ import ThemeToggle from '@/components/layout/ThemeToggle.vue';
 
 <template>
     <header
-        class="border-b border-border flex justify-between items-center py-3 px-4 mb-12"
+        class="flex justify-between items-center py-3 px-4"
     >
         <h1 class="text-xl font-semibold">DeFi Simulator</h1>
         <div class="flex items-center gap-4">

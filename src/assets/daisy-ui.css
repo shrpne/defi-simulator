@@ -33,7 +33,13 @@
     --depth: 0;
     --noise: 0;
 
+    /* extra */
+    --color-base-150: oklch(98.8% 0 0);
+    --color-base-175: oklch(95% 0 0);
+    --color-base-250: oklch(89.5% 0 0);
+
     /* override for all themes */
+    --color-primary: oklch(21% 0.006 241.966);
     --radius-field: 0.5rem;
     --radius-box: 0.5rem;
     --card-p: 1rem;
@@ -70,11 +76,14 @@
     /*--depth: 0;*/
     /*--noise: 0;*/
 
-    /* override */
-    --color-base-200: oklch(33% 0 0);
-    --color-base-300: oklch(40% 0 0);
-    --color-primary: oklch(45% 0.19 251);
-    --color-primary-content: oklch(93% 0.019 251);
+    /* override and extra */
+    --color-base-150: oklch(27% 0 0);
+    --color-base-175: oklch(28.5% 0 0);
+    --color-base-200: oklch(30% 0 0);
+    --color-base-250: oklch(33.5% 0 0);
+    --color-base-300: oklch(37% 0 0);
+    --color-primary: oklch(93% 0.005 251);
+    --color-primary-content: oklch(12% 0.02 251);
 }
 @layer base {
     /*@layer base {*/
@@ -103,7 +112,16 @@
 /*@custom-variant dark (&:where([data-theme=business], [data-theme=business] *));*/
 
 @utility btn {
-    font-weight: 400;
+    font-weight: 500;
+}
+@utility btn-primary {
+    @media (hover: hover) {
+        :root.light &:hover {
+            @supports (color: color-mix(in lab, red, red)) {
+                --btn-bg: color-mix(in oklab, var(--btn-color), #fff 15%);
+            }
+        }
+    }
 }
 
 @utility btn-outline {

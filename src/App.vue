@@ -4,11 +4,9 @@ import LayoutHeader from '@/components/layout/LayoutHeader.vue';
 </script>
 
 <template>
-    <LayoutHeader/>
+    <LayoutHeader class="bg-background border-b border-border mb-12"/>
 
-    <div
-        class="container-xs mx-auto card card-border card-body"
-    >
+    <div class="container-xs mx-auto card card-border card-body bg-background shadow-2xl shadow-black/10">
         <main>
             <ProtocolList />
         </main>
