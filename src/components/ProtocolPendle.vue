@@ -323,9 +323,9 @@ function getMarketLogo(market: PendleMarketData) {
                     <template #value="slotProps: { value: TokenValue, placeholder: string }">
                         <UiToken
                             v-if="slotProps.value"
-                            :token="slotProps.value"
+                            :token="{...slotProps.value, amount: undefined}"
                         />
-                        <span v-else class="text-muted">Select a token</span>
+                        <template v-else>Select a token</template>
                     </template>
                     <template #option="{option}: { option: TokenValue }">
                         <UiToken
@@ -361,7 +361,7 @@ function getMarketLogo(market: PendleMarketData) {
                             :text="formatExpiry(slotProps.value.expiry)"
                             squared
                         />
-                        <span v-else class="text-muted">Select a market</span>
+                        <template v-else >Select a market</template>
                     </template>
                     <template #option="slotProps: { option: PendleMarketData }">
                         <UiToken
