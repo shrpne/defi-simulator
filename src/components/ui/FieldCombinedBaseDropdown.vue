@@ -165,11 +165,18 @@ function handleKeyNavigation(e: KeyboardEvent) {
     // Enter key is handled in the input element
 }
 
-watch(focusedIndex, (newVal) => {
+watch(focusedIndex, (newVal, oldVal) => {
+    if (!props.isOpen) {
+        return;
+    }
+
     if (newVal === -1) {
         inputRef.value?.focus();
     } else {
-        optionRef.value?.[newVal].focus();
+        // workaround for: v-for ref is not sorted
+        // @see https://github.com/vuejs/core/issues/4010
+        const el = optionRef.value?.find((item) => item.getAttribute('data-index') === newVal.toString());
+        el?.focus();
     }
 })
 
@@ -207,7 +214,8 @@ function handleEnter(e: KeyboardEvent) {
                 ref="optionRef"
                 v-for="(suggestion, index) in optionsFiltered"
                 :key="props.getSuggestionValue(suggestion)"
-                :class="{ 'is-focused': focusedIndex === optionsFiltered.indexOf(suggestion) }"
+                :class="{ 'is-focused': focusedIndex === index }"
+                :data-index="index"
                 @click="handleOptionClick(suggestion)"
                 @focus="focusedIndex = index"
             >
