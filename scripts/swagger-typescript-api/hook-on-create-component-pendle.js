@@ -20,5 +20,12 @@ export default function onCreateComponent(component) {
         component.rawTypeData.required = component.rawTypeData.required.filter((prop) => prop !== 'value')
     }
 
+    if (component.typeName === 'SdkControllerSwapParams') {
+        // narrow down to Viem
+        component.rawTypeData.properties.tokenIn.type = 'hex';
+        component.rawTypeData.properties.tokenOut.type = 'hex';
+        component.rawTypeData.properties.receiver.type = 'hex';
+    }
+
     return component;
 }

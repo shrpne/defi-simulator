@@ -108,7 +108,7 @@ const isLoading = computed(() => {
 
 async function _handleSubmit() {
     console.log('Swap', spendTokenValue.value, 'to', spendTokenValue.value);
-    // STEP #1
+    // STEP #1 ENTER MARKET
     if (!spendTokenValue.value?.contractAddress || !selectedMarket.value || !selectedMarketPt.value || !walletAddress.value) {
         return;
     }
@@ -118,30 +118,46 @@ async function _handleSubmit() {
     const amountIn = spendTokenValue.value.value.toString();
     const tokenOut = selectedMarketPt.value;
 
-    const { tx } = await prepareMarketSwapTx({
+
+
+    async function simulateEnterMarket({ tokenIn, amountIn, tokenOut, market, receiver }: Parameters<typeof prepareMarketSwapTx>[0]) {
+        const { tx } = await prepareMarketSwapTx({
+            market,
+            tokenOut,
+            tokenIn,
+            amountIn,
+            receiver,
+        });
+
+        const simulation = await extractTokens(simulateBundleRpc([
+            // approve tokenIn
+            {
+                from: receiver,
+                to: tokenIn,
+                data: encodeApproveData(tx.to, amountIn),
+                // value: 0,
+            },
+            // zap into market
+            {
+                from: tx.from,
+                to: tx.to,
+                data: tx.data,
+                // value: tx.value,
+            },
+        ]), simulationBundleTokensExtractor);
+
+        return simulation;
+    }
+
+    const simulation = await simulateEnterMarket({
         market: selectedMarket.value.address,
-        tokenOut,
-        tokenIn,
-        amountIn,
+        tokenOut: selectedMarketPt.value,
+        tokenIn: spendTokenValue.value.contractAddress,
+        amountIn: spendTokenValue.value.value.toString(),
         receiver: walletAddress.value,
     });
 
-    const simulation = await extractTokens(simulateBundleRpc([
-        // approve tokenIn
-        {
-            from: walletAddress.value,
-            to: tokenIn,
-            data: encodeApproveData(tx.to, amountIn),
-            // value: 0,
-        },
-        // zap into market
-        {
-            from: tx.from,
-            to: tx.to,
-            data: tx.data,
-            // value: tx.value,
-        },
-    ]), simulationBundleTokensExtractor);
+
     console.log('simulation', simulation);
     simulationSteps.value[0] = {
         name: 'Enter market',
@@ -150,7 +166,7 @@ async function _handleSubmit() {
     };
     simulationResult.value = simulation;
 
-    // STEP #2
+    // STEP #2 EXIT MARKET
     if (!selectedMarketUnderlying.value) {
         return;
     }
@@ -181,7 +197,7 @@ async function _handleSubmit() {
         };
     }
 
-    // STEP #3
+    // STEP #3 SWAP BACK TO INITIAL TOKEN
     let quote: Awaited<ReturnType<typeof getSwapQuote>>
     try {
         quote = await extractTokens(getSwapQuote({

@@ -97,6 +97,8 @@ export interface PendleMarketData {
   details: PendleMarketDetails;
   /** Whether the market is new */
   isNew: boolean;
+  /** Whether the market is prime */
+  isPrime: boolean;
   /**
    * Market deployed timestamp
    * @format date-time
@@ -107,7 +109,7 @@ export interface PendleMarketData {
 export interface PendleGetActiveMarketsResponse {
   /**
    * active market list
-   * @example [{"name":"crvUSD","address":"0x386f90eb964a477498b528a39d9405e73ed4032b","expiry":"2024-03-28T00:00:00.000Z","pt":"1-0xb87511364014c088e30f872efc4a00d7efb843ac","yt":"1-0xed97f94dd94255637a054098604e0201c442a3fd","sy":"1-0xe05082b184a34668cd8a904d85fa815802bbb04c","underlyingAsset":"1-0xb27d1729489d04473631f0afaca3c3a7389ac9f8","details":{"liquidity":1000000,"pendleApy":0.05,"impliedApy":0.05,"feeRate":0.001,"yieldRange":{"min":0.01,"max":0.02},"aggregatedApy":0.1,"maxBoostedApy":0.1},"isNew":true,"timestamp":"2025-03-18T00:00:00.000Z"},{"name":"USD0++","address":"0x64506968e80c9ed07bff60c8d9d57474effff2c9","expiry":"2025-01-30T00:00:00.000Z","pt":"1-0x61439b9575278054d69c9176d88fafaf8319e4b7","yt":"1-0x9697e1ef258b847275e1b32f8a57b3a7e2f8ec50","sy":"1-0x52453825c287ddef62d647ce51c0979d27c461f7","underlyingAsset":"1-0x35d8949372d46b7a3d5a56006ae77b215fc69bc0","details":{"liquidity":1000000,"pendleApy":0.05,"impliedApy":0.05,"feeRate":0.001,"yieldRange":{"min":0.01,"max":0.02},"aggregatedApy":0.1,"maxBoostedApy":0.1},"isNew":false,"timestamp":"2025-02-18T00:00:00.000Z"}]
+   * @example [{"name":"crvUSD","address":"0x386f90eb964a477498b528a39d9405e73ed4032b","expiry":"2024-03-28T00:00:00.000Z","pt":"1-0xb87511364014c088e30f872efc4a00d7efb843ac","yt":"1-0xed97f94dd94255637a054098604e0201c442a3fd","sy":"1-0xe05082b184a34668cd8a904d85fa815802bbb04c","underlyingAsset":"1-0xb27d1729489d04473631f0afaca3c3a7389ac9f8","details":{"liquidity":1000000,"pendleApy":0.05,"impliedApy":0.05,"feeRate":0.001,"yieldRange":{"min":0.01,"max":0.02},"aggregatedApy":0.1,"maxBoostedApy":0.1},"isNew":true,"isPrime":true,"timestamp":"2025-03-18T00:00:00.000Z"},{"name":"USD0++","address":"0x64506968e80c9ed07bff60c8d9d57474effff2c9","expiry":"2025-01-30T00:00:00.000Z","pt":"1-0x61439b9575278054d69c9176d88fafaf8319e4b7","yt":"1-0x9697e1ef258b847275e1b32f8a57b3a7e2f8ec50","sy":"1-0x52453825c287ddef62d647ce51c0979d27c461f7","underlyingAsset":"1-0x35d8949372d46b7a3d5a56006ae77b215fc69bc0","details":{"liquidity":1000000,"pendleApy":0.05,"impliedApy":0.05,"feeRate":0.001,"yieldRange":{"min":0.01,"max":0.02},"aggregatedApy":0.1,"maxBoostedApy":0.1},"isNew":false,"isPrime":false,"timestamp":"2025-02-18T00:00:00.000Z"}]
    */
   markets: PendleMarketData[];
 }
@@ -115,7 +117,7 @@ export interface PendleGetActiveMarketsResponse {
 export interface PendleGetInactiveMarketsResponse {
   /**
    * inactive market list
-   * @example [{"name":"crvUSD","address":"0x386f90eb964a477498b528a39d9405e73ed4032b","expiry":"2024-03-28T00:00:00.000Z","pt":"1-0xb87511364014c088e30f872efc4a00d7efb843ac","yt":"1-0xed97f94dd94255637a054098604e0201c442a3fd","sy":"1-0xe05082b184a34668cd8a904d85fa815802bbb04c","underlyingAsset":"1-0xb27d1729489d04473631f0afaca3c3a7389ac9f8","details":{"liquidity":1000000,"pendleApy":0.05,"impliedApy":0.05,"feeRate":0.001,"yieldRange":{"min":0.01,"max":0.02},"aggregatedApy":0.1,"maxBoostedApy":0.1},"isNew":true,"timestamp":"2025-03-18T00:00:00.000Z"},{"name":"USD0++","address":"0x64506968e80c9ed07bff60c8d9d57474effff2c9","expiry":"2025-01-30T00:00:00.000Z","pt":"1-0x61439b9575278054d69c9176d88fafaf8319e4b7","yt":"1-0x9697e1ef258b847275e1b32f8a57b3a7e2f8ec50","sy":"1-0x52453825c287ddef62d647ce51c0979d27c461f7","underlyingAsset":"1-0x35d8949372d46b7a3d5a56006ae77b215fc69bc0","details":{"liquidity":1000000,"pendleApy":0.05,"impliedApy":0.05,"feeRate":0.001,"yieldRange":{"min":0.01,"max":0.02},"aggregatedApy":0.1,"maxBoostedApy":0.1},"isNew":false,"timestamp":"2025-02-18T00:00:00.000Z"}]
+   * @example [{"name":"crvUSD","address":"0x386f90eb964a477498b528a39d9405e73ed4032b","expiry":"2024-03-28T00:00:00.000Z","pt":"1-0xb87511364014c088e30f872efc4a00d7efb843ac","yt":"1-0xed97f94dd94255637a054098604e0201c442a3fd","sy":"1-0xe05082b184a34668cd8a904d85fa815802bbb04c","underlyingAsset":"1-0xb27d1729489d04473631f0afaca3c3a7389ac9f8","details":{"liquidity":1000000,"pendleApy":0.05,"impliedApy":0.05,"feeRate":0.001,"yieldRange":{"min":0.01,"max":0.02},"aggregatedApy":0.1,"maxBoostedApy":0.1},"isNew":true,"isPrime":true,"timestamp":"2025-03-18T00:00:00.000Z"},{"name":"USD0++","address":"0x64506968e80c9ed07bff60c8d9d57474effff2c9","expiry":"2025-01-30T00:00:00.000Z","pt":"1-0x61439b9575278054d69c9176d88fafaf8319e4b7","yt":"1-0x9697e1ef258b847275e1b32f8a57b3a7e2f8ec50","sy":"1-0x52453825c287ddef62d647ce51c0979d27c461f7","underlyingAsset":"1-0x35d8949372d46b7a3d5a56006ae77b215fc69bc0","details":{"liquidity":1000000,"pendleApy":0.05,"impliedApy":0.05,"feeRate":0.001,"yieldRange":{"min":0.01,"max":0.02},"aggregatedApy":0.1,"maxBoostedApy":0.1},"isNew":false,"isPrime":false,"timestamp":"2025-02-18T00:00:00.000Z"}]
    */
   markets: PendleMarketData[];
 }
@@ -151,12 +153,17 @@ export interface PendleAssetData {
    * @example "2023-03-30T00:00:00.000Z"
    */
   expiry: string;
+  /**
+   * asset pro icon
+   * @example "https://storage.googleapis.com/prod-pendle-bucket-a/images/uploads/0d3199a2-0565-4355-ad52-6bfdc67e3467.svg"
+   */
+  proIcon: string;
 }
 
 export interface PendleGetAssetsResponse {
   /**
    * list of assets
-   * @example [{"name":"PT FRAX-USDC","decimals":18,"address":"0x5fe30ac5cb1abb0e44cdffb2916c254aeb368650","symbol":"PT-FRAXUSDC_CurveLP Convex-30MAR2023","tags":["PT"],"expiry":"2023-03-30T00:00:00.000Z"},{"name":"YT FRAX-USDC","decimals":18,"address":"0xc5cd692e9b4622ab8cdb57c83a0f99f874a169cd","symbol":"YT-FRAXUSDC_CurveLP Convex-30MAR2023","tags":["YT"],"expiry":"2023-03-30T00:00:00.000Z"}]
+   * @example [{"name":"PT FRAX-USDC","decimals":18,"address":"0x5fe30ac5cb1abb0e44cdffb2916c254aeb368650","symbol":"PT-FRAXUSDC_CurveLP Convex-30MAR2023","tags":["PT"],"expiry":"2023-03-30T00:00:00.000Z","proIcon":"https://storage.googleapis.com/prod-pendle-bucket-a/images/assets/pro/acad6337-8ce4-47c2-87a7-c270aab01b3d.svg"},{"name":"YT FRAX-USDC","decimals":18,"address":"0xc5cd692e9b4622ab8cdb57c83a0f99f874a169cd","symbol":"YT-FRAXUSDC_CurveLP Convex-30MAR2023","tags":["YT"],"expiry":"2023-03-30T00:00:00.000Z","proIcon":"https://storage.googleapis.com/prod-pendle-bucket-a/images/assets/pro/2239e536-439d-4c58-a417-805fb63c7ced.svg"}]
    */
   assets: PendleAssetData[];
 }
@@ -839,6 +846,8 @@ export interface PendleMarketBasicMetadataResponse {
   categoryIds: string[];
   /** @format date-time */
   timestamp: string;
+  /** @format date-time */
+  whitelistedProAt?: string | null;
   scalarRoot: number;
   initialAnchor: number;
   /** Additional market data, only available when market is whitelisted. */
@@ -847,7 +856,7 @@ export interface PendleMarketBasicMetadataResponse {
   isPopular?: boolean | null;
   /** @format date-time */
   tvlThresholdTimestamp?: string | null;
-  /** Market which is deployed in the last 2 weeks will have isNew==true */
+  /** Market which whitelisted in the last 2 weeks will have isNew==true */
   isNew: boolean;
   name: string;
   simpleName: string;
@@ -1002,7 +1011,9 @@ export interface PendleMarketResponse {
   isPopular?: boolean | null;
   /** @format date-time */
   tvlThresholdTimestamp?: string | null;
-  /** Market which is deployed in the last 2 weeks will have isNew==true */
+  /** @format date-time */
+  whitelistedProAt?: string | null;
+  /** Market which whitelisted in the last 2 weeks will have isNew==true */
   isNew: boolean;
   name: string;
   simpleName: string;
@@ -1914,7 +1925,7 @@ export type PendleSdkControllerGetMarketSpotSwappingPriceData =
 
 export interface PendleSdkControllerSwapParams {
   /** The address to receive the output of the action */
-  receiver: string;
+  receiver: `0x${string}`;
   /** Max slippage accepted. A value from 0 to 1 (0.01 is 1%) */
   slippage: number;
   /**
@@ -1923,9 +1934,9 @@ export interface PendleSdkControllerSwapParams {
    */
   enableAggregator?: boolean;
   /** Address can be token / SY / PT or YT */
-  tokenIn: string;
+  tokenIn: `0x${string}`;
   /** Address can be token / SY / PT or YT */
-  tokenOut: string;
+  tokenOut: `0x${string}`;
   amountIn: string;
   /** Available fields: `impliedApy`, `effectiveApy`. Comma separated list of fields to return. For example: `field1,field2`. More fields will consume more computing units. */
   additionalData?: string;
